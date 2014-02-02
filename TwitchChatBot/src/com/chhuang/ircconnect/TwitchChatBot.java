@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -31,6 +32,7 @@ public class TwitchChatBot{
 	public static final String CRAPPY_BOT = "CrappyBot";
 	
 	private boolean loggedIn;
+	private boolean authenticated;
 	
 	private String nick;
 	private String channel;
@@ -38,6 +40,7 @@ public class TwitchChatBot{
 	private Bot bot;
 	private Vocabulary vocab;
 	private AccountManager accountManager;
+	private AccountManagerUI accountUI;
 	
 	private SendListener sendListener;
 	private WindowListener windowListener;
@@ -66,6 +69,7 @@ public class TwitchChatBot{
 		nick = null;
 		channel = null;
 		loggedIn = false;
+		authenticated = false;
 		
 		vocab = new Vocabulary();
 		accountManager = new AccountManager();
@@ -130,7 +134,10 @@ public class TwitchChatBot{
 		miAccounts = new JMenuItem("Accounts");
 		miAccounts.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				accountManager.setVisible(true);
+				if(accountUI == null){
+					accountUI = new AccountManagerUI(accountManager);
+				}
+				accountUI.setVisible(true);
 			}
 		});
 		
@@ -150,8 +157,6 @@ public class TwitchChatBot{
 		frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
 		frame.getContentPane().add(pTextBox,BorderLayout.SOUTH);
 		frame.getContentPane().add(menuBar, BorderLayout.NORTH);
-		
-		
 	}
 	
 	public String getPrvtMsg(String line){
@@ -185,22 +190,6 @@ public class TwitchChatBot{
 		
 		connectToTwitch();
 		
-		String line = null;
-		writer.write("PASS " + pass + "\r\n");
-		writer.write("NICK " + nick + "\r\n");
-		writer.flush();
-		display.append("\nAuthenticating " + nick +" ...\n\n");
-		while((line = reader.readLine()) != null){
-			display.append(line+"\r\n");
-			if (line.indexOf("376") >= 0){
-				break;
-			}
-			else if(line.indexOf("Login unsuccessful") >= 0){
-				return;
-			}
-		}
-		
-		display.append("\nAuthenticate Success\n");
 		
 		loggedIn = true;
 		incoming = new Thread(new Incoming());
@@ -209,19 +198,39 @@ public class TwitchChatBot{
 		connectToChannel();
 	}
 	
-	public void connectToTwitch() throws Exception{
-		if(!(socket instanceof Socket) || !socket.isConnected()){
-			socket = new Socket(TWITCH_SERVER, 6667);
-			display.append("Successfully connected to " + socket.getInetAddress().getHostName() + "-" +socket.getInetAddress().getHostAddress() + "\n");
+	public void connectToTwitch() throws UnknownHostException{
+		try {
+			if(socket == null || !socket.isConnected()){
+				
+					socket = new Socket(TWITCH_SERVER, 6667);
+				
+				display.append("Successfully connected to " + socket.getInetAddress().getHostName() + "-" +socket.getInetAddress().getHostAddress() + "\n");
+				
+				writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())); 
+				reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				
+				String line = null;
+				writer.write("PASS " + pass + "\r\n");
+				writer.write("NICK " + nick + "\r\n");
+				writer.flush();
+				display.append("\nAuthenticating " + nick +" ...\n\n");
+				while((line = reader.readLine()) != null){
+					display.append(line+"\r\n");
+					if (line.indexOf("376") >= 0){
+						break;
+					}
+					else if(line.indexOf("Login unsuccessful") >= 0){
+						return;
+					}
+				}	
+				display.append("\nAuthenticate Success\n");
+				
+			}else{
+				display.append("Currently connected to: " + socket.getInetAddress().getHostAddress());
+			}
+		} catch (IOException e){
 			
-			
-			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())); 
-			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		}else{
-			display.append("Currently connected to: " + socket.getInetAddress().getHostAddress());
 		}
-		
-	
 	}
 	
 	public void connectToChannel() throws Exception{
@@ -236,6 +245,11 @@ public class TwitchChatBot{
 	public void disconnect() throws Exception{
 		if(loggedIn){
 			String command = "PART " + channel + "\r\n";
+			writer.write(command);
+			writer.flush();
+			display.append(command);
+			
+			command = "QUIT " + channel + "\r\n";
 			writer.write(command);
 			writer.flush();
 			display.append(command);
@@ -272,8 +286,8 @@ public class TwitchChatBot{
 			String line = null;
 			try {
 				System.out.println("BEFORE WHILE!");
-				line = reader.readLine();
-				while(!Thread.currentThread().isInterrupted() && line != null){
+				
+				while(!Thread.currentThread().isInterrupted() && ((line = reader.readLine()) != null)){
 					
 					System.out.println(line);
 					/*--AVOID DISCONNECTION--*/
@@ -295,9 +309,6 @@ public class TwitchChatBot{
 					}else{
 						display.append(line +"\n");
 					}
-					System.out.println("where does it stop?");
-					line = reader.readLine();
-					System.out.println("where does it stop tho?");
 				}
 			} catch (IOException e) {
 				Thread.currentThread().interrupt();
@@ -316,6 +327,7 @@ public class TwitchChatBot{
 			/* Terminates the program */
 			frame.setVisible(false);
 			frame.dispose();
+
 			System.exit(0);
 		
 		}
