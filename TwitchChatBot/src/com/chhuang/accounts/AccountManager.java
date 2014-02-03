@@ -10,9 +10,9 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 
-import com.chhuang.ircconnect.TwitchChatBot;
+import com.chhuang.irc.MainChatBoxUI;
+import com.chhuang.irc.Server;
 
 public class AccountManager implements Comparator<Account>{
 	
@@ -29,7 +29,7 @@ public class AccountManager implements Comparator<Account>{
 	public void initializeAccounts(){
 		accounts = new ArrayList<Account>();
 		if(!loadAccounts()){
-			Account newAccount = new Account(TwitchChatBot.CRAPPY_BOT, "oauth");	
+			Account newAccount = new Account(Server.CRAPPY_BOT, "oauth");	
 			accounts.add(newAccount);
 		}
 		Collections.sort(accounts, this);
@@ -81,13 +81,14 @@ public class AccountManager implements Comparator<Account>{
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public boolean loadAccounts(){
 		
 		try{
-			File f = new File(ACCOUNT_FILE_NAME);
-			FileInputStream fis = new FileInputStream(f);
+			File file = new File(ACCOUNT_FILE_NAME);
+			FileInputStream fis = new FileInputStream(file);
 			ObjectInputStream ois = new ObjectInputStream(fis);
-			accounts = (ArrayList<Account>)ois.readObject();
+			accounts = (ArrayList<Account>) ois.readObject();
 
 			ois.close();
 			fis.close();

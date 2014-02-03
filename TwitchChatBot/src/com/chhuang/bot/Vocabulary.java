@@ -1,4 +1,4 @@
-package com.chhuang.ircconnect;
+package com.chhuang.bot;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -48,7 +48,6 @@ public class Vocabulary implements ActionListener{
 	public Vocabulary(){
 		jfrm = new JFrame("ChatBotVocab");
 		
-		//jfrm.setBounds(250, 250, 440, 440);
 		jfrm.setSize(500, 500);
 		jfrm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		jfrm.setLayout(new FlowLayout());
@@ -230,6 +229,7 @@ public class Vocabulary implements ActionListener{
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public boolean load(){
 		try{
 			File f = new File(VOCAB_FILE);

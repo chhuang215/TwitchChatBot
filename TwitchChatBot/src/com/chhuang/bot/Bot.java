@@ -1,4 +1,4 @@
-package com.chhuang.ircconnect;
+package com.chhuang.bot;
 
 public class Bot {
 	private Vocabulary vocab;

@@ -44,7 +44,7 @@ public class AccountManagerUI extends JFrame{
 	public AccountManagerUI(AccountManager accManage) {
 		this.setTitle("Accounts");
 		this.accountManager = accManage;
-		setSize(500,500);
+		setSize(330,720);
 		setLayout(new BorderLayout(5,5));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		

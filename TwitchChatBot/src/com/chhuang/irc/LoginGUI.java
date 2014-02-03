@@ -1,8 +1,6 @@
-package com.chhuang.ircconnect;
+package com.chhuang.irc;
 
 import java.awt.GridLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
 import javax.swing.JComboBox;
@@ -13,7 +11,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.chhuang.accounts.Account;
-import com.chhuang.accounts.AccountManager;
 
 
 public class LoginGUI{
@@ -33,10 +30,10 @@ public class LoginGUI{
 	private JComboBox<String> txtNicks;
 	private JTextField txtChannel;
 
-	public LoginGUI(JFrame parent, ArrayList<Account> accounts) {
+	public LoginGUI(JFrame frame, ArrayList<Account> accounts) {
 
 		this.accounts =  accounts;
-		choice = JOptionPane.showOptionDialog(parent, getPane(), "Login", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE, null,new String[] {"Login", "Cancel"}, "Login");
+		choice = JOptionPane.showOptionDialog(frame, getPane(), "Login", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE, null,new String[] {"Login", "Cancel"}, "Login");
 		if(choice == LOGIN_CLICKED) login();
 		
 	}
@@ -71,7 +68,6 @@ public class LoginGUI{
 		for(int i = 0; i < accounts.size(); i++){
 			strNicks[i] = accounts.get(i).getNick();
 		}
-
 		
 		txtNicks = new JComboBox<String>(strNicks);
 
