@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import com.chhuang.bot.Bot;
-import com.chhuang.bot.Vocabulary;
 
 
 public class Server {
@@ -128,7 +126,10 @@ public class Server {
 					
 					display.output(line);
 					if(bot != null && !display.getMessage().equals("")){
-						write("PRIVMSG " + channel + " :" + bot.generateOutput(display.getMessage()));
+						String output = bot.generateOutput(display.getMessage());
+						if(!output.equals(""))
+							write("PRIVMSG " + channel + " :" + output);
+								
 					}
 				}
 			} catch (IOException e) {

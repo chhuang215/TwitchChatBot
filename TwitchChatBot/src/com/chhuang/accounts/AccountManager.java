@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import com.chhuang.irc.MainChatBoxUI;
 import com.chhuang.irc.Server;
 
 public class AccountManager implements Comparator<Account>{

@@ -24,6 +24,7 @@ import javax.swing.text.DefaultCaret;
 import com.chhuang.accounts.*;
 import com.chhuang.bot.*;
 
+@SuppressWarnings("serial")
 public class MainChatBoxUI extends JFrame implements ActionListener{
 
 	public static final String TWITCH_SERVER = "irc.twitch.tv";
@@ -32,7 +33,6 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	
 	private Server server;
 
-	private Bot bot;
 	private Vocabulary vocab;
 	
 	private AccountManager accountManager;

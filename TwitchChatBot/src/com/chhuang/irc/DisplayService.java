@@ -20,10 +20,12 @@ public class DisplayService {
 	
 	public void output(String msg){
 		
+		message = "";
+		
 		if(msg.startsWith(":") && msg.contains("PRIVMSG") && !msg.contains("jtv")){
 			msg = parseNormalPrivmsg(msg);
-		}else{
-			message = "";
+		}else if(msg.startsWith("PRIVMSG ")){
+			msg = this.nick +"(me): " + msg.substring(msg.indexOf(":") + 1);
 		}
 		
 		display.append(msg + "\n");
