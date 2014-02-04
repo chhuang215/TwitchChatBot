@@ -1,5 +1,6 @@
 package com.chhuang.irc;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -70,12 +71,15 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		display.setEditable(false);
 		display.setLineWrap(true);
 		display.setFont(new Font("Arial Unicode MS", Font.PLAIN,13));
+		display.setBackground(Color.DARK_GRAY);
+		display.setForeground(Color.CYAN);
 		display.setText("Welcome to TwitchChatBot!\n");
-
+		
 		DefaultCaret caret = (DefaultCaret)display.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		
 		scrollPane = new JScrollPane(display);
+
 		/*---------------------*/
 		
 		/*--TextField0--*/
@@ -133,10 +137,10 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		menu.add(miAccounts);
 		menuBar.add(menu);
 		
+		setJMenuBar(menuBar);
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 		getContentPane().add(pTextBox,BorderLayout.SOUTH);
-		getContentPane().add(menuBar, BorderLayout.NORTH);
-
+		
 		setVisible(true);
 	}
 
@@ -144,6 +148,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 
 		LoginGUI login = new LoginGUI(this, accountManager.getAccounts());
 		if(login.valid){
+			display.setText("");;
 			
 			String nick = login.getNick();
 			String pass = login.getPass();
@@ -163,7 +168,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	}
 	
 	public void checkConnected(){
-		if(server.connected){
+		if(server.isConnected()){
 			miLogin.setEnabled(false);
 			miDisconnect.setEnabled(true);
 		} else {
@@ -186,7 +191,6 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			System.exit(0);
 		}
 	}
-	
 
 	public void actionPerformed(ActionEvent e) {
 		String actionCommand = e.getActionCommand();
@@ -216,59 +220,5 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		} else if(actionCommand.equalsIgnoreCase("vocab")){
 			vocab.show(true);
 		}		
-	}
-	
-	/*
-	private class Incoming implements Runnable{
-
-		public void run() {
-			String line = null;
-			try {				
-				while(!Thread.currentThread().isInterrupted() && ((line = reader.readLine()) != null)){
-					
-					/*--AVOID DISCONNECTION--
-					if (line.toLowerCase().startsWith("PING ")){
-						writer.write("PONG " + line.substring(5)+"\r\n");
-						writer.write("PRIVMSG " + channel + " :I got pinged!\r\n");
-						writer.flush();
-					}
-					/*-----------------------
-					
-					if(!loggedIn){
-						if (line.indexOf("001") >= 0){
-							display.append("\nAuthenticate Success\n");
-							setLogin(true);
-						}
-						else if(line.indexOf("Login unsuccessful") >= 0){
-							return;
-						}
-					}
-					
-					if(line.contains("PRIVMSG") && !line.contains("jtv")){
-						int index = line.indexOf(":") + 1;
-						int endIndex = line.indexOf("!");
-						String name = line.substring(index, endIndex);
-						String msg = getPrvtMsg(line);
-						display.append(name + ": " + msg +"\r\n");
-
-						if(nick.equalsIgnoreCase(CRAPPY_BOT)){
-							String response = bot.generateOutput(msg);
-							sendMsg(response);
-						}
-						
-					}else{
-						display.append(line +"\n");
-					}
-				}
-			} catch (IOException e) {
-				Thread.currentThread().interrupt();
-				e.printStackTrace();
-				System.out.println("SOCKET DISCONNECT!");
-
-			} 
-			JOptionPane.showMessageDialog(getRootPane(), "*******Disconnect from " + channel +"********\n");
-		}
-	}
-	*/
-	
+	}	
 }

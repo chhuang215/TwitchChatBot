@@ -14,8 +14,13 @@ public class Server {
 	public static final int DEFAULT_PORT = 6667;
 	public static final String DEFAULT_SERVER = "irc.twitch.tv";
 	public static final String CRAPPY_BOT = "CrappyBot";
+	public static final String[] IRC_COMMANDS = {"ADMIN", "AWAY", "CNOTICE", "CPRIVMSG", "CONNECT", "DIE", "ENCAP","ERROR","HELP"
+		,"INFO","INVITE","ISON", "JOIN", "KICK","KILL","KNOCK","LINKS","LIST","LUSERS","MODE","MOTD","NAMES","NAMESX","NICK","NOTICE"
+		,"OPER","PART","PASS","PING","PONG","PRIVMSG","QUIT","REHASH","RESTART","RULES","SERVER","SERVICE","SERVLIST","SQUERY","SQUIT"
+		,"SETNAME","SILENCE","STATS","SUMMON","TIME","TOPIC","TRACE","UHNAMES","USER","USERHOST","USERIP","USERS","VERSION","WALLOPS"
+		,"WATCH","WHO","WHOIS","WHOWAS"};
 	
-	public boolean connected = false; 
+	private boolean connected = false; 
 	
 	private Socket socket;
 	private BufferedReader reader;
@@ -49,7 +54,7 @@ public class Server {
 			
 		} catch (IOException e) {
 			e.printStackTrace();
-			display.output("NOT ABLE TO CONNECT TO " + DEFAULT_SERVER);
+			display.output("NOT ABLE TO CONNECT TO " + hostname + "/" + port);
 		}
 		
 	}
@@ -65,7 +70,7 @@ public class Server {
 	
 	public void connectToChannel(String channel){
 		
-		this.channel = channel;
+		this.channel = channel.toLowerCase();
 
 		write("JOIN " + channel);
 	}
@@ -92,24 +97,30 @@ public class Server {
 	
 	public void insertBot(Bot bot){
 		this.bot = bot;
+		bot.setChannel(channel);
 	}
 	
 	public String getChannel(){
 		return channel;
 	}
 	
+	public boolean isConnected(){
+		return connected;
+	}
+	
 	private class Incoming implements Runnable {
 
-		@Override
 		public void run() {
 			String line = null;
 			try {				
 				while(!Thread.currentThread().isInterrupted() && ((line = reader.readLine()) != null)){
 					
+					display.output(line);
+					
 					/*--AVOID DISCONNECTION--*/
-					if (line.toLowerCase().startsWith("PING ")){
+					if (line.startsWith("PING ")){
 						write("PONG " + line.substring(5));
-						write("PRIVMSG " + channel + " :I got pinged!");
+						//write("PRIVMSG " + channel + " :I got pinged!");
 					}
 					/*-----------------------*/
 					
@@ -124,12 +135,9 @@ public class Server {
 						}
 					}
 					
-					display.output(line);
 					if(bot != null && !display.getMessage().equals("")){
 						String output = bot.generateOutput(display.getMessage());
-						if(!output.equals(""))
-							write("PRIVMSG " + channel + " :" + output);
-								
+						write(output);
 					}
 				}
 			} catch (IOException e) {

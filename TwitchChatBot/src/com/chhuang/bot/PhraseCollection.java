@@ -5,6 +5,7 @@ import java.util.Random;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.ListSelectionModel;
 
 
 public class PhraseCollection implements Serializable{
@@ -18,6 +19,7 @@ public class PhraseCollection implements Serializable{
 		this.key = key;
 		dlm = new DefaultListModel<String>();
 		lstPhrases = new JList<String>(dlm);
+		lstPhrases.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	}
 	
 	public String getPhrase(){
@@ -36,8 +38,7 @@ public class PhraseCollection implements Serializable{
 		dlm.addElement(phrase);
 	}
 	
-	public void removePhrase(){
-		int index = lstPhrases.getSelectedIndex();
+	public void removePhrase(int index){
 		if(index >= 0){
 			dlm.remove(index);
 		}

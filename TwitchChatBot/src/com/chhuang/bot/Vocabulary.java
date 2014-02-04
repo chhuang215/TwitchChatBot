@@ -1,7 +1,7 @@
 package com.chhuang.bot;
 
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -16,21 +16,37 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JTabbedPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public class Vocabulary implements ActionListener{
 	
 	public static final String VOCAB_FILE = "vocab";
 	
-	private JTabbedPane jtp;
-	private JFrame jfrm;
 	private ArrayList<PhraseCollection> phrases;
-	private PhraseCollection phraseCollection;
+	private String nameOfUser;
+	
+	private JFrame jfrm;
+	private JPanel jpLists;
+	private JPanel jpLabels;
+	
+	private JList<String> lstKeys;
+	private JList<String> lstPhrases;
+	private JLabel lblKeys;
+	private JLabel lblPhrases;
+	
 	private JMenuBar mbMenu;
 	private JMenu mKeyOptions;
 	private JMenuItem miAddkey;
@@ -39,18 +55,17 @@ public class Vocabulary implements ActionListener{
 	private JMenu mFile;
 	private JMenuItem miSave;
 	private JMenuItem miLoad;
+	
 	private JMenu mPhraseOptions;
 	private JMenuItem miAddphrase;
 	private JMenuItem miRemovephrase;
 	
-	private String nameOfUser;
-	
 	public Vocabulary(){
-		jfrm = new JFrame("ChatBotVocab");
+		jfrm = new JFrame("CrappyBotVocab");
 		
 		jfrm.setSize(500, 500);
 		jfrm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		jfrm.setLayout(new FlowLayout());
+		jfrm.setLayout(new BorderLayout());
 		jfrm.addWindowListener(new WindowAdapter(){
 			public void windowClosing(WindowEvent e) {
 				save();
@@ -92,14 +107,48 @@ public class Vocabulary implements ActionListener{
 		mPhraseOptions.add(miRemovephrase);
 		mbMenu.add(mPhraseOptions);
 		
-		jtp = new JTabbedPane();
-		jtp.setPreferredSize(new Dimension(400,400));
-		jfrm.getContentPane().add(jtp);
+		lblKeys = new JLabel("Keys");
+		lblKeys.setHorizontalAlignment(SwingUtilities.CENTER);
+		lblPhrases = new JLabel("Phrases");
+		lblPhrases.setHorizontalAlignment(SwingUtilities.CENTER);
+	
+		
+		lstKeys = new JList<String>(new DefaultListModel<String>());
+		lstKeys.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		lstKeys.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent arg0) {
+				if(!arg0.getValueIsAdjusting()){
+					int index = lstKeys.getSelectedIndex();
+					if(index >= 0){
+						DefaultListModel<String> dlm = (DefaultListModel<String>)phrases.get(index).getJListPhrases().getModel();
+						lstPhrases.setModel(dlm);
+					}
+				}
+			}
+		});
+		
+		lstPhrases = new JList<String>();
+		
+		//jtp = new JTabbedPane();
+		//jtp.setPreferredSize(new Dimension(400,400));
+		//jfrm.getContentPane().add(jtp);
+		jpLists = new JPanel(new GridLayout(1,2,6,5));
+		jpLists.add(new JScrollPane(lstKeys));
+		jpLists.add(new JScrollPane(lstPhrases));
+		
+		jpLabels = new JPanel(new GridLayout(1,2,2,2));
+		jpLabels.add(lblKeys);
+		jpLabels.add(lblPhrases);
+		
+		
+		jfrm.getContentPane().add(jpLabels, BorderLayout.NORTH);
+		jfrm.getContentPane().add(jpLists, BorderLayout.CENTER);
+		
 		load();
 	}
 	
 	public String getPhrase(String userInput){
-		if(containsIgnoreCase(userInput, "my name is")){
+		if(userInput.toLowerCase().contains("my name is")){
 			int index = userInput.toLowerCase().indexOf("my");
 			userInput = (String)userInput.subSequence(index, userInput.length());
 			String splitUI[] = userInput.split(" ");
@@ -107,7 +156,8 @@ public class Vocabulary implements ActionListener{
 		}
 		
 		String output = searchPhrases(userInput);
-		if(containsIgnoreCase(userInput, "*name*")){
+
+		if(output.toLowerCase().contains("*name*")){
 			output = output.replace("*name*", nameOfUser);
 		}
 		if(output.equals("")){
@@ -142,17 +192,18 @@ public class Vocabulary implements ActionListener{
 	public void addKey(String key){
 		key = key.toLowerCase();
 		if(searchForKey(key) == -1){
-			phraseCollection = new PhraseCollection(key);
-			jtp.addTab(key, phraseCollection.getJListPhrases());
+			PhraseCollection phraseCollection = new PhraseCollection(key);
+			DefaultListModel<String> dlm = (DefaultListModel<String>)lstKeys.getModel();
+			dlm.addElement(key);
 			phrases.add(phraseCollection);
 		}
 	}
 	
 	public void removeKey(){
-		String key = getSelectedKey();
-		int index = searchForKey(key);
+		DefaultListModel<String> dlm = (DefaultListModel<String>)lstKeys.getModel();
+		int index = lstKeys.getSelectedIndex();
 		phrases.remove(index);
-		jtp.remove(jtp.getSelectedIndex());		
+		dlm.remove(index);
 	}
 	
 	public void addPhrase(String key, String phrase){
@@ -164,15 +215,13 @@ public class Vocabulary implements ActionListener{
 	}
 	
 	public void addPhrase(String phrase){
-		String key = getSelectedKey();
-		int index = searchForKey(key);
+		int index = lstKeys.getSelectedIndex();
 		phrases.get(index).addPhrase(phrase);
 	}
 	
 	public void removePhrase(){
-		String key = getSelectedKey();
-		int index = searchForKey(key);
-		phrases.get(index).removePhrase();
+		int index = lstKeys.getSelectedIndex();
+		phrases.get(index).removePhrase(lstPhrases.getSelectedIndex());
 	}
 	
 	public int searchForKey(String key){
@@ -184,19 +233,6 @@ public class Vocabulary implements ActionListener{
 		return -1;
 	}
 
-	public String getSelectedKey(){
-		return jtp.getTitleAt(jtp.getSelectedIndex());
-	}
-	
-	public boolean containsIgnoreCase(String outer, String inner){
-		outer = outer.toLowerCase();
-		inner = inner.toLowerCase();
-		if(outer.contains(inner)){
-			return true;
-		}else{
-			return false;
-		}
-	}
 	
 	public void show(boolean showMe){
 		if(showMe){
@@ -207,9 +243,15 @@ public class Vocabulary implements ActionListener{
 	}
 	
 	public void reset(){
-		jtp.removeAll();
+		
+		DefaultListModel<String> dlm  = (DefaultListModel<String>)lstKeys.getModel();
+		dlm.clear();
+		
+		//jtp.removeAll();
+		
 		for(int i = 0; i < phrases.size(); i++){
-			jtp.addTab(phrases.get(i).getKey(), phrases.get(i).getJListPhrases());
+			//jtp.addTab(phrases.get(i).getKey(), phrases.get(i).getJListPhrases());
+			dlm.addElement(phrases.get(i).getKey());
 		}
 	}
 	
@@ -254,10 +296,6 @@ public class Vocabulary implements ActionListener{
 			e.printStackTrace();
 			return false;
 		}
-	}
-
-	public JFrame getFrame(){
-		return jfrm;
 	}
 
 	public void actionPerformed(ActionEvent e) {
