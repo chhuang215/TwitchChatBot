@@ -1,43 +1,78 @@
 package com.chhuang.irc;
 
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.StyledDocument;
 
 public class DisplayService {
 
+	public static final int MAX_LINES = 450;
+	
+	private int lines = 0;
 	private String nick, channel;
 	private String message;
-	private JTextArea display;
 
+	private JTextPane display;
+	private StyledDocument doc;
 	
 	public DisplayService(Object displayObj, String nick, String channel) {
 		this.nick = nick;
 		this.channel = channel;
 		message = "";
-		if(displayObj instanceof JTextArea){
-			display = (JTextArea)displayObj;
+		if(displayObj instanceof JTextPane){
+			display = (JTextPane)displayObj;
+			doc = display.getStyledDocument();
 		}
 	}
 	
 	public void output(String msg){
-		
-		message = "";
-		
-		if(msg.startsWith(":") && msg.contains("PRIVMSG") && !msg.contains("jtv")){
-			msg = parseNormalPrivmsg(msg);
-		}else if(msg.startsWith("PRIVMSG ")){
-			msg = this.nick +"(me): " + msg.substring(msg.indexOf(":") + 1);
-		}
-		
-		display.append(msg + "\n");
-		display.setCaretPosition(display.getDocument().getLength());
+		try{
+			if(msg != null && !msg.equals("")){
+				message = "";
+				
+				if(msg.startsWith(":") && msg.contains("PRIVMSG") && !msg.contains("jtv")){
+					outputPrivmsg(msg);
+					
+				}else if(msg.startsWith("PRIVMSG ")){
+					outputPrivmsg(this.nick + "(me)", msg.substring(msg.indexOf(":") + 1));
+				}else{
+					doc.insertString(doc.getLength(), msg, doc.getStyle("default"));
+				}
+				
+				doc.insertString(doc.getLength(), "\n", doc.getStyle("default"));
+				lines++;
+				if(lines > MAX_LINES){
+					doc.remove(0, display.getText().indexOf("\n"));
+				}
+			}
+		}catch(BadLocationException e){e.printStackTrace();};
 	}
 	
-	private String parseNormalPrivmsg(String msg){
+	/**
+	 * Overloading outputPrivmsg
+	 * @param msg
+	 */
+	private void outputPrivmsg(String msg){
 		String nick = msg.substring(msg.indexOf(":") + 1, msg.indexOf("!"));
 		String beforeMessage = " PRIVMSG " + channel + " :";
 		message = msg.substring(msg.lastIndexOf(beforeMessage) + beforeMessage.length());
 		
-		return nick + ": " + message;
+		outputPrivmsg(nick, message);
+	}
+	
+	/**
+	 * Overloading outputPrivmsg
+	 * @param nick
+	 * @param msg
+	 */
+	private void outputPrivmsg(String nick, String msg){
+		try {
+			doc.insertString(doc.getLength(), nick + ": ", doc.getStyle("names"));
+			doc.insertString(doc.getLength(), msg, doc.getStyle("messages"));
+		} catch (BadLocationException e) {
+			System.out.println("UNABLE TO INSERT STRING!");
+			e.printStackTrace();
+		}
 	}
 	
 	public String getMessage(){

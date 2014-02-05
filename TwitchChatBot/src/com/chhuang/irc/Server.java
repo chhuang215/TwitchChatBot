@@ -9,8 +9,9 @@ import java.net.Socket;
 
 import com.chhuang.bot.Bot;
 
-
 public class Server {
+	//public static ArrayList<Server> running_servers = new ArrayList<Server>(); FUTURE
+
 	public static final int DEFAULT_PORT = 6667;
 	public static final String DEFAULT_SERVER = "irc.twitch.tv";
 	public static final String CRAPPY_BOT = "CrappyBot";
@@ -59,12 +60,16 @@ public class Server {
 		
 	}
 	
-	public void disconncetFromServer() throws IOException{
+	public void disconncetFromServer() throws IOException, InterruptedException{
+		
 		write("QUIT");
 
+		incoming.join();
+		
 		reader.close();
 		writer.close();
 		socket.close();
+
 		connected = false;
 	}
 	
@@ -136,10 +141,11 @@ public class Server {
 					}
 					
 					if(bot != null && !display.getMessage().equals("")){
-						String output = bot.generateOutput(display.getMessage());
-						write(output);
+						write(bot.generateOutput(display.getMessage()));
 					}
 				}
+				
+				display.output("**DISCONNECTED**");
 			} catch (IOException e) {
 				Thread.currentThread().interrupt();
 				e.printStackTrace();

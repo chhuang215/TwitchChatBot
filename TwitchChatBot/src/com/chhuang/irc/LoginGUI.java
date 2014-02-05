@@ -19,7 +19,7 @@ public class LoginGUI{
 
 	private ArrayList<Account> accounts;
 	
-	public boolean valid = false;
+	private boolean valid = false;
 	private int choice;
 	private String nick;
 	private String pass;
@@ -94,6 +94,10 @@ public class LoginGUI{
 	
 	public String getChannel(){
 		return channel;
+	}
+	
+	public boolean isValid(){
+		return valid;
 	}
 
 }

@@ -1,7 +1,6 @@
 package com.chhuang.irc;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -16,11 +15,16 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.text.DefaultCaret;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 
 import com.chhuang.accounts.*;
 import com.chhuang.bot.*;
@@ -39,11 +43,14 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	private AccountManager accountManager;
 	private AccountManagerUI accountUI;
 	
-	private JPanel pTextBox;
+	private JPanel panelTextBox;
+	private JPanel panelMainPane;
 	private JTextField txtInput;
-	private JTextArea display;
+	//private JTextArea displayOLD;
+	private JTextPane display;
+	
 	private JButton btn;
-	private JScrollPane scrollPane;
+	private JScrollPane scrollPaneDISPLAY;
 	
 	private JMenuBar menuBar;
 	private JMenu menu;
@@ -64,9 +71,11 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		
-		pTextBox = new JPanel(new BorderLayout(4,2));
+		panelTextBox = new JPanel(new BorderLayout(4,2));
 		
-		/*--TextArea : DISPLAY--*/
+		initializeDisplayPane();		
+		
+		/*--TextArea : DISPLAY--
 		display = new JTextArea();
 		display.setEditable(false);
 		display.setLineWrap(true);
@@ -79,22 +88,28 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		
 		scrollPane = new JScrollPane(display);
-
-		/*---------------------*/
+		---------------------*/
 		
 		/*--TextField0--*/
 		txtInput = new JTextField();
 		txtInput.setActionCommand("send");
 		txtInput.addActionListener(this);
+		txtInput.setEnabled(false);
 		/*--------------*/
 		
-		
+		/*--Button--*/
 		btn = new JButton("Enter");
 		btn.setActionCommand("send");
 		btn.addActionListener(this);
-
-		pTextBox.add(txtInput, BorderLayout.CENTER);
-		pTextBox.add(btn, BorderLayout.EAST);
+		/*----------*/
+		
+		
+		panelTextBox.add(txtInput, BorderLayout.CENTER);
+		panelTextBox.add(btn, BorderLayout.EAST);
+		
+		panelMainPane = new JPanel(new BorderLayout());
+		panelMainPane.add(scrollPaneDISPLAY, BorderLayout.CENTER);
+		panelMainPane.add(panelTextBox,BorderLayout.SOUTH);
 		
 		menuBar = new JMenuBar();
 		menu = new JMenu("Menu");
@@ -138,17 +153,44 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		menuBar.add(menu);
 		
 		setJMenuBar(menuBar);
-		getContentPane().add(scrollPane, BorderLayout.CENTER);
-		getContentPane().add(pTextBox,BorderLayout.SOUTH);
+		getContentPane().add(panelMainPane, BorderLayout.CENTER);
 		
 		setVisible(true);
+	}
+
+	private void initializeDisplayPane() {
+		
+		display = new JTextPane();
+		display.setEditable(false);
+		display.setBackground(Color.LIGHT_GRAY);
+		
+		StyledDocument doc = display.getStyledDocument();
+		
+		Style defaultStyle = doc.addStyle("default", StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE));
+		StyleConstants.setFontSize(defaultStyle, 13);
+		StyleConstants.setForeground(defaultStyle, Color.DARK_GRAY);
+		StyleConstants.setFontFamily(defaultStyle, "Arial Unicode MS");
+
+		Style styleNames = doc.addStyle("names", defaultStyle);
+		StyleConstants.setForeground(styleNames, Color.BLUE);
+		
+		Style messages = doc.addStyle("messages", defaultStyle);
+		StyleConstants.setForeground(messages, Color.BLACK);
+		
+		DefaultCaret caret = (DefaultCaret)display.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		
+		scrollPaneDISPLAY = new JScrollPane(display);
+		scrollPaneDISPLAY.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPaneDISPLAY.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);;
 	}
 
 	public void login() {	
 
 		LoginGUI login = new LoginGUI(this, accountManager.getAccounts());
-		if(login.valid){
-			display.setText("");;
+		if(login.isValid()){
+			
+			display.setText("");
 			
 			String nick = login.getNick();
 			String pass = login.getPass();
@@ -157,10 +199,13 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			
 			//connect
 			server = new Server(nick, pass, new DisplayService(display, nick, channel));
+
 			server.connectToChannel(channel);
 			if(nick.equalsIgnoreCase(Server.CRAPPY_BOT)){
 				server.insertBot(new Bot(vocab));
 			}
+			
+			txtInput.setEnabled(true);
 		}
 		
 		login = null;
@@ -171,9 +216,11 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		if(server.isConnected()){
 			miLogin.setEnabled(false);
 			miDisconnect.setEnabled(true);
+			txtInput.setEnabled(true);
 		} else {
 			miLogin.setEnabled(true);
 			miDisconnect.setEnabled(false);
+			txtInput.setEnabled(false);
 		}
 	}
 	
@@ -182,11 +229,12 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		public void windowClosing(WindowEvent e){
 			/* Terminates the program */
 			try {
-			if(server != null)
-				server.disconncetFromServer();
-			} catch (IOException e1) {e1.printStackTrace();}
+				if(server != null){
+					setTitle("Disconnecting...");
+					server.disconncetFromServer();
+				}
+			} catch (IOException | InterruptedException e1) {e1.printStackTrace();}
 			
-			setVisible(false);
 			dispose();
 			System.exit(0);
 		}
@@ -197,8 +245,10 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		
 		if(actionCommand.equalsIgnoreCase("send")){
 			String input = txtInput.getText();
-			server.write("PRIVMSG " + server.getChannel() + " :" +input);
-			txtInput.setText("");
+			if(server != null){
+				server.write("PRIVMSG " + server.getChannel() + " :" +input);
+			}
+				txtInput.setText("");
 		} else if(actionCommand.equalsIgnoreCase("login")){
 			try{
 				login();
