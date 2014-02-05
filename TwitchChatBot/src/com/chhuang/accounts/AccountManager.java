@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import com.chhuang.irc.Server;
+import com.chhuang.irc.Client;
 
 public class AccountManager implements Comparator<Account>{
 	
@@ -28,7 +28,7 @@ public class AccountManager implements Comparator<Account>{
 	public void initializeAccounts(){
 		accounts = new ArrayList<Account>();
 		if(!loadAccounts()){
-			Account newAccount = new Account(Server.CRAPPY_BOT, "oauth");	
+			Account newAccount = new Account(Client.CRAPPY_BOT, "oauth");	
 			accounts.add(newAccount);
 		}
 		Collections.sort(accounts, this);

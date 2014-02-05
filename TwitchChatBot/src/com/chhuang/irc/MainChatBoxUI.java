@@ -36,7 +36,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	
 	public static final String DEFAULT_TITLE = "TWITCH CHAT";
 	
-	private Server server;
+	private Client client;
 
 	private Vocabulary vocab;
 	
@@ -46,8 +46,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	private JPanel panelTextBox;
 	private JPanel panelMainPane;
 	private JTextField txtInput;
-	//private JTextArea displayOLD;
-	private JTextPane display;
+	private JTextPane tpChatDisplay;
 	
 	private JButton btn;
 	private JScrollPane scrollPaneDISPLAY;
@@ -61,9 +60,6 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	
 	public MainChatBoxUI(){
 		
-		accountManager = new AccountManager();
-		vocab = new Vocabulary();
-		
 		setTitle(DEFAULT_TITLE);
 		setSize(660,555);
 		setLayout(new BorderLayout());
@@ -71,45 +67,8 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		
-		panelTextBox = new JPanel(new BorderLayout(4,2));
-		
-		initializeDisplayPane();		
-		
-		/*--TextArea : DISPLAY--
-		display = new JTextArea();
-		display.setEditable(false);
-		display.setLineWrap(true);
-		display.setFont(new Font("Arial Unicode MS", Font.PLAIN,13));
-		display.setBackground(Color.DARK_GRAY);
-		display.setForeground(Color.CYAN);
-		display.setText("Welcome to TwitchChatBot!\n");
-		
-		DefaultCaret caret = (DefaultCaret)display.getCaret();
-		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		
-		scrollPane = new JScrollPane(display);
-		---------------------*/
-		
-		/*--TextField0--*/
-		txtInput = new JTextField();
-		txtInput.setActionCommand("send");
-		txtInput.addActionListener(this);
-		txtInput.setEnabled(false);
-		/*--------------*/
-		
-		/*--Button--*/
-		btn = new JButton("Enter");
-		btn.setActionCommand("send");
-		btn.addActionListener(this);
-		/*----------*/
-		
-		
-		panelTextBox.add(txtInput, BorderLayout.CENTER);
-		panelTextBox.add(btn, BorderLayout.EAST);
-		
-		panelMainPane = new JPanel(new BorderLayout());
-		panelMainPane.add(scrollPaneDISPLAY, BorderLayout.CENTER);
-		panelMainPane.add(panelTextBox,BorderLayout.SOUTH);
+		accountManager = new AccountManager();
+		vocab = new Vocabulary();
 		
 		menuBar = new JMenuBar();
 		menu = new JMenu("Menu");
@@ -117,7 +76,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			
 			@Override
 			public void menuSelected(MenuEvent arg0) {
-				if(server != null){
+				if(client != null){
 					checkConnected();
 				}
 			}
@@ -152,19 +111,52 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		menu.add(miAccounts);
 		menuBar.add(menu);
 		
+		
+		
+		/*
+		 * -----------MAIN PANEL--------------
+		 */
+		initializeChatDisplayTextPane();
+
+		/*--TextField0--*/
+		txtInput = new JTextField();
+		txtInput.setActionCommand("send");
+		txtInput.addActionListener(this);
+		txtInput.setEnabled(false);
+		/*--------------*/
+		
+		/*--Button--*/
+		btn = new JButton("Enter");
+		btn.setActionCommand("send");
+		btn.addActionListener(this);
+		/*----------*/
+		
+		panelTextBox = new JPanel(new BorderLayout(4,2));
+		panelTextBox.add(txtInput, BorderLayout.CENTER);
+		panelTextBox.add(btn, BorderLayout.EAST);
+		
+		panelMainPane = new JPanel(new BorderLayout());
+		panelMainPane.add(scrollPaneDISPLAY, BorderLayout.CENTER);
+		panelMainPane.add(panelTextBox,BorderLayout.SOUTH);
+		
+		/*
+		 * -----------------------------------
+		 */
+		
+		
 		setJMenuBar(menuBar);
 		getContentPane().add(panelMainPane, BorderLayout.CENTER);
 		
 		setVisible(true);
 	}
 
-	private void initializeDisplayPane() {
+	private void initializeChatDisplayTextPane() {
 		
-		display = new JTextPane();
-		display.setEditable(false);
-		display.setBackground(Color.LIGHT_GRAY);
+		tpChatDisplay = new JTextPane();
+		tpChatDisplay.setEditable(false);
+		tpChatDisplay.setBackground(Color.LIGHT_GRAY);
 		
-		StyledDocument doc = display.getStyledDocument();
+		StyledDocument doc = tpChatDisplay.getStyledDocument();
 		
 		Style defaultStyle = doc.addStyle("default", StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE));
 		StyleConstants.setFontSize(defaultStyle, 13);
@@ -177,10 +169,10 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		Style messages = doc.addStyle("messages", defaultStyle);
 		StyleConstants.setForeground(messages, Color.BLACK);
 		
-		DefaultCaret caret = (DefaultCaret)display.getCaret();
+		DefaultCaret caret = (DefaultCaret)tpChatDisplay.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		
-		scrollPaneDISPLAY = new JScrollPane(display);
+		scrollPaneDISPLAY = new JScrollPane(tpChatDisplay);
 		scrollPaneDISPLAY.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPaneDISPLAY.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);;
 	}
@@ -190,7 +182,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		LoginGUI login = new LoginGUI(this, accountManager.getAccounts());
 		if(login.isValid()){
 			
-			display.setText("");
+			tpChatDisplay.setText("");
 			
 			String nick = login.getNick();
 			String pass = login.getPass();
@@ -198,22 +190,21 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			login = null;
 			
 			//connect
-			server = new Server(nick, pass, new DisplayService(display, nick, channel));
+			client = new Client(nick, pass, new DisplayService(tpChatDisplay, nick, channel));
 
-			server.connectToChannel(channel);
-			if(nick.equalsIgnoreCase(Server.CRAPPY_BOT)){
-				server.insertBot(new Bot(vocab));
+			client.connectToChannel(channel);
+			if(nick.equalsIgnoreCase(Client.CRAPPY_BOT)){
+				client.insertBot(new Bot(vocab));
 			}
 			
 			txtInput.setEnabled(true);
 		}
 		
 		login = null;
-	
 	}
 	
 	public void checkConnected(){
-		if(server.isConnected()){
+		if(client.isConnected()){
 			miLogin.setEnabled(false);
 			miDisconnect.setEnabled(true);
 			txtInput.setEnabled(true);
@@ -229,9 +220,9 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		public void windowClosing(WindowEvent e){
 			/* Terminates the program */
 			try {
-				if(server != null){
+				if(client != null){
 					setTitle("Disconnecting...");
-					server.disconncetFromServer();
+					client.disconnectFromServer();
 				}
 			} catch (IOException | InterruptedException e1) {e1.printStackTrace();}
 			
@@ -245,8 +236,8 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		
 		if(actionCommand.equalsIgnoreCase("send")){
 			String input = txtInput.getText();
-			if(server != null){
-				server.write("PRIVMSG " + server.getChannel() + " :" +input);
+			if(client != null){
+				client.write("PRIVMSG " + client.getChannel() + " :" +input);
 			}
 				txtInput.setText("");
 		} else if(actionCommand.equalsIgnoreCase("login")){
@@ -257,8 +248,8 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			}
 		} else if(actionCommand.equalsIgnoreCase("disconnect")){
 			try {
-				server.disconncetFromServer();
-				JOptionPane.showMessageDialog(getContentPane(), "*******Disconnect from " + server.getChannel() +"********\n");
+				client.disconnectFromServer();
+				JOptionPane.showMessageDialog(getContentPane(), "*******Disconnect from " + client.getChannel() +"********\n");
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

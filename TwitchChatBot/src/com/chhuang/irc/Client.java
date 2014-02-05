@@ -9,7 +9,7 @@ import java.net.Socket;
 
 import com.chhuang.bot.Bot;
 
-public class Server {
+public class Client {
 	//public static ArrayList<Server> running_servers = new ArrayList<Server>(); FUTURE
 
 	public static final int DEFAULT_PORT = 6667;
@@ -33,7 +33,7 @@ public class Server {
 	
 	private Thread incoming;
 	
-	public Server(String nick, String pass, DisplayService displayService) {
+	public Client(String nick, String pass, DisplayService displayService) {
 		this.display = displayService;
 		bot = null;
 		connectToServer(DEFAULT_SERVER, DEFAULT_PORT, nick, pass);		
@@ -60,7 +60,7 @@ public class Server {
 		
 	}
 	
-	public void disconncetFromServer() throws IOException, InterruptedException{
+	public void disconnectFromServer() throws IOException, InterruptedException{
 		
 		write("QUIT");
 
