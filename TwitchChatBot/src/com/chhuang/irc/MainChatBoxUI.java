@@ -41,10 +41,8 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	private Vocabulary vocab;
 	
 	private AccountManager accountManager;
-	private AccountManagerUI accountUI;
 	
 	private ChannelManager channelManager;
-	private ChannelManagerUI channelUI;
 	
 	private JPanel panelTextBox;
 	private JPanel panelMainPane;
@@ -188,7 +186,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 
 	public void login() {	
 
-		LoginGUI login = new LoginGUI(this, accountManager.getAccounts());
+		LoginGUI login = new LoginGUI(this, accountManager.getAccounts(), channelManager.getChannels());
 		if(login.isValid()){
 			
 			tpChatDisplay.setText("");
@@ -196,7 +194,6 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			String nick = login.getNick();
 			String pass = login.getPass();
 			String channel = login.getChannel();
-			login = null;
 			
 			//connect
 			client = new Client(nick, pass, new DisplayService(tpChatDisplay, nick, channel));
@@ -263,16 +260,11 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 				e1.printStackTrace();
 			}
 		} else if(actionCommand.equalsIgnoreCase("accounts")){
-			if(accountUI == null){
-				accountUI = new AccountManagerUI(accountManager);
-			}
-			accountUI.setVisible(true);
+			accountManager.showUI();;
 		} else if(actionCommand.equalsIgnoreCase("vocab")){
 			vocab.show(true);
 		} else if(actionCommand.equalsIgnoreCase("channels")){
-			if(channelUI == null){
-				channelUI = new ChannelManagerUI(channelManager);
-			}
+			channelManager.showUI();
 		}
 	}	
 }

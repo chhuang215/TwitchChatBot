@@ -42,7 +42,6 @@ public class AccountManagerUI extends JFrame{
 	
 	public AccountManagerUI(AccountManager accManage) {
 		this.setTitle("Accounts");
-		this.accountManager = accManage;
 		setSize(330,720);
 		setLayout(new BorderLayout(5,5));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -52,6 +51,8 @@ public class AccountManagerUI extends JFrame{
 				accountManager.saveAccounts();
 			}
 		});
+		
+		this.accountManager = accManage;
 		
 		initializeNickList();
 		
@@ -190,8 +191,8 @@ public class AccountManagerUI extends JFrame{
 	public void resetList(){
 		dlm.clear();
 		if(!accountManager.getAccounts().isEmpty()){
-			for(int index = 0; index < accountManager.getAccounts().size(); index++){
-				dlm.addElement(accountManager.getSelectedAccount(index).getNick());
+			for(Account acc : accountManager.getAccounts()){
+				dlm.addElement(acc.getNick());
 			}
 			lstNicks.clearSelection();
 		}

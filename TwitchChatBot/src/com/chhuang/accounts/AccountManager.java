@@ -18,13 +18,21 @@ public class AccountManager implements Comparator<Account>{
 	public static final String ACCOUNT_FILE_NAME = "accounts";
 	
 	private ArrayList<Account> accounts;
-
+	private AccountManagerUI ui;
+	
 	public AccountManager() {
 		
 		initializeAccounts();
 		
 	}
 
+	public void showUI(){
+		if (ui == null){
+			ui = new AccountManagerUI(this);
+		}
+		ui.setVisible(true);
+	}
+	
 	public void initializeAccounts(){
 		accounts = new ArrayList<Account>();
 		if(!loadAccounts()){
@@ -49,7 +57,6 @@ public class AccountManager implements Comparator<Account>{
 			Collections.sort(accounts, this);
 		}
 	}
-	
 
 	public void addAccount(String nick, String oauth) {
 			
@@ -115,7 +122,9 @@ public class AccountManager implements Comparator<Account>{
 
 	
 	public Account getSelectedAccount(int index){
+	
 		return accounts.get(index);
+	
 	}
 	
 	public ArrayList<Account> getAccounts(){
