@@ -43,6 +43,9 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	private AccountManager accountManager;
 	private AccountManagerUI accountUI;
 	
+	private ChannelManager channelManager;
+	private ChannelManagerUI channelUI;
+	
 	private JPanel panelTextBox;
 	private JPanel panelMainPane;
 	private JTextField txtInput;
@@ -57,6 +60,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	private JMenuItem miDisconnect;
 	private JMenuItem miVocabulary;
 	private JMenuItem miAccounts;
+	private JMenuItem miChannels;
 	
 	public MainChatBoxUI(){
 		
@@ -68,6 +72,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		setLocationRelativeTo(null);
 		
 		accountManager = new AccountManager();
+		channelManager = new ChannelManager();
 		vocab = new Vocabulary();
 		
 		menuBar = new JMenuBar();
@@ -105,10 +110,14 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		miVocabulary = new JMenuItem("Vocab");
 		miVocabulary.addActionListener(this);
 		
+		miChannels = new JMenuItem("Channels");
+		miChannels.addActionListener(this);
+		
 		menu.add(miLogin);
 		menu.add(miDisconnect);
 		menu.add(miVocabulary);
 		menu.add(miAccounts);
+		menu.add(miChannels);
 		menuBar.add(menu);
 		
 		
@@ -260,6 +269,10 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			accountUI.setVisible(true);
 		} else if(actionCommand.equalsIgnoreCase("vocab")){
 			vocab.show(true);
-		}		
+		} else if(actionCommand.equalsIgnoreCase("channels")){
+			if(channelUI == null){
+				channelUI = new ChannelManagerUI(channelManager);
+			}
+		}
 	}	
 }
