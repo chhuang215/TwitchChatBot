@@ -28,6 +28,7 @@ import javax.swing.text.StyledDocument;
 
 import com.chhuang.accounts.*;
 import com.chhuang.bot.*;
+import com.chhuang.channels.ChannelManager;
 
 @SuppressWarnings("serial")
 public class MainChatBoxUI extends JFrame implements ActionListener{

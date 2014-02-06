@@ -9,14 +9,14 @@ public class DisplayService {
 	public static final int MAX_LINES = 450;
 	
 	private int lines = 0;
-	private String nick, channel;
+	private String myNick, channel;
 	private String message;
 
 	private JTextPane display;
 	private StyledDocument doc;
 	
 	public DisplayService(Object displayObj, String nick, String channel) {
-		this.nick = nick;
+		this.myNick = nick;
 		this.channel = channel;
 		message = "";
 		if(displayObj instanceof JTextPane){
@@ -34,7 +34,7 @@ public class DisplayService {
 					outputPrivmsg(msg);
 					
 				}else if(msg.startsWith("PRIVMSG ")){
-					outputPrivmsg(this.nick + "(me)", msg.substring(msg.indexOf(":") + 1));
+					outputPrivmsg(this.myNick + "(me)", msg.substring(msg.indexOf(":") + 1));
 				}else{
 					doc.insertString(doc.getLength(), msg, doc.getStyle("default"));
 				}

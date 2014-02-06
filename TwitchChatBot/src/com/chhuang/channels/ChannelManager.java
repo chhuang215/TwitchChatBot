@@ -1,4 +1,4 @@
-package com.chhuang.irc;
+package com.chhuang.channels;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -10,7 +10,7 @@ import java.net.Socket;
 import com.chhuang.bot.Bot;
 
 public class Client {
-	//public static ArrayList<Server> running_servers = new ArrayList<Server>(); FUTURE
+	//public static ArrayList<Server> running_clients = new ArrayList<Client>(); FUTURE
 
 	public static final int DEFAULT_PORT = 6667;
 	public static final String DEFAULT_SERVER = "irc.twitch.tv";
@@ -88,7 +88,7 @@ public class Client {
 		
 		try {
 			
-			if(msg != null && !msg.trim().equals("")){		
+			if(msg != null && !msg.trim().equals("")){	
 				writer.write(msg + "\r\n");
 				writer.flush();
 				display.output(msg);

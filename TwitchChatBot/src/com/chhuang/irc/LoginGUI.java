@@ -8,10 +8,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import com.chhuang.accounts.Account;
-
 
 public class LoginGUI{
 	
@@ -30,8 +28,6 @@ public class LoginGUI{
 	private JLabel lblCh;
 	private JComboBox<String> txtNicks;
 	private JComboBox<String> jcbChannel;
-
-	
 
 	public LoginGUI(JFrame frame, ArrayList<Account> accounts, ArrayList<String> channels) {
 
@@ -74,13 +70,11 @@ public class LoginGUI{
 		}
 		
 
-		String[] strChannels = new String[channels.size()];
-		strChannels = channels.toArray(strChannels);
+		String[] strChannels = channels.toArray(new String[0]);
 		
 		txtNicks = new JComboBox<String>(strNicks);
 		jcbChannel = new JComboBox<String>(strChannels);
 		
-
 		pLabels.add(lblNick);
 		pLabels.add(lblCh);
 		pInputs.add(txtNicks);
