@@ -27,7 +27,7 @@ public class DisplayService {
 	
 	public void output(String msg){
 		try{
-			if(msg != null && !msg.equals("")){
+			if(msg != null && !msg.equals("") && !msg.contains(" JOIN ") && !msg.contains(" PART ")){
 				message = "";
 				
 				if(msg.startsWith(":") && msg.contains("PRIVMSG") && !msg.contains("jtv")){
