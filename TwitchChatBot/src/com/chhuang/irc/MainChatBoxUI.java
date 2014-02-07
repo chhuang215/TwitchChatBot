@@ -27,7 +27,6 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
 import com.chhuang.accounts.*;
-import com.chhuang.bot.*;
 import com.chhuang.channels.ChannelManager;
 
 @SuppressWarnings("serial")
@@ -37,32 +36,32 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	
 	public static final String DEFAULT_TITLE = "TWITCH CHAT";
 	
+	MessageBoxUI msbUI = new MessageBoxUI();
+	
 	private Client client;
-
-	private Vocabulary vocab;
 	
 	private AccountManager accountManager;
-	
 	private ChannelManager channelManager;
 	
 	private JPanel panelTextBox;
 	private JPanel panelMainPane;
 	private JTextField txtInput;
-	private JTextPane tpChatDisplay;
+	private JTextPane jtpChatDisplay;
 	
 	private JButton btn;
 	private JScrollPane scrollPaneDISPLAY;
 	
 	private JMenuBar menuBar;
-	private JMenu menu;
+	private JMenu jmMenu;
+	private JMenu jmCrappyBot;
 	private JMenuItem miLogin;
 	private JMenuItem miDisconnect;
 	private JMenuItem miVocabulary;
 	private JMenuItem miAccounts;
 	private JMenuItem miChannels;
+	private JMenuItem miIncoming;
 	
 	public MainChatBoxUI(){
-		
 		setTitle(DEFAULT_TITLE);
 		setSize(660,555);
 		setLayout(new BorderLayout());
@@ -72,28 +71,37 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		
 		accountManager = new AccountManager();
 		channelManager = new ChannelManager();
-		vocab = new Vocabulary();
 		
 		menuBar = new JMenuBar();
-		menu = new JMenu("Menu");
-		menu.addMenuListener(new MenuListener() {
+		jmMenu = new JMenu("Menu");
+		jmMenu.addMenuListener(new MenuListener() {
 			
 			@Override
 			public void menuSelected(MenuEvent arg0) {
-				if(client != null){
+				checkConnected();
+			}
+			@Override
+			public void menuDeselected(MenuEvent arg0) {}
+			@Override
+			public void menuCanceled(MenuEvent arg0) {}
+		});
+		
+		jmCrappyBot = new JMenu("CrappyBot");
+		jmCrappyBot.addMenuListener(new MenuListener() {
+			@Override
+			public void menuSelected(MenuEvent arg0) {
+				if(client != null && client.getVocab() != null){
+					miVocabulary.setEnabled(true);
 					checkConnected();
+				}else{
+					miVocabulary.setEnabled(false);
 				}
-			}
-			
-			@Override
-			public void menuDeselected(MenuEvent arg0) {
 				
 			}
-			
 			@Override
-			public void menuCanceled(MenuEvent arg0) {
-				
-			}
+			public void menuDeselected(MenuEvent arg0) {}
+			@Override
+			public void menuCanceled(MenuEvent arg0) {}
 		});
 		
 		miLogin = new JMenuItem("Login");
@@ -112,14 +120,19 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		miChannels = new JMenuItem("Channels");
 		miChannels.addActionListener(this);
 		
-		menu.add(miLogin);
-		menu.add(miDisconnect);
-		menu.add(miVocabulary);
-		menu.add(miAccounts);
-		menu.add(miChannels);
-		menuBar.add(menu);
+		miIncoming = new JMenuItem("Server Messages");
+		miIncoming.addActionListener(this);
 		
+		jmMenu.add(miLogin);
+		jmMenu.add(miDisconnect);
+		jmMenu.add(miChannels);
+		jmMenu.add(miAccounts);
+		jmMenu.add(miIncoming);
 		
+		jmCrappyBot.add(miVocabulary);
+
+		menuBar.add(jmMenu);
+		menuBar.add(jmCrappyBot);
 		
 		/*
 		 * -----------MAIN PANEL--------------
@@ -151,7 +164,6 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		 * -----------------------------------
 		 */
 		
-		
 		setJMenuBar(menuBar);
 		getContentPane().add(panelMainPane, BorderLayout.CENTER);
 		
@@ -160,11 +172,11 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 
 	private void initializeChatDisplayTextPane() {
 		
-		tpChatDisplay = new JTextPane();
-		tpChatDisplay.setEditable(false);
-		tpChatDisplay.setBackground(Color.LIGHT_GRAY);
+		jtpChatDisplay = new JTextPane();
+		jtpChatDisplay.setEditable(false);
+		jtpChatDisplay.setBackground(Color.LIGHT_GRAY);
 		
-		StyledDocument doc = tpChatDisplay.getStyledDocument();
+		StyledDocument doc = jtpChatDisplay.getStyledDocument();
 		
 		Style defaultStyle = doc.addStyle("default", StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE));
 		StyleConstants.setFontSize(defaultStyle, 13);
@@ -177,10 +189,10 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		Style messages = doc.addStyle("messages", defaultStyle);
 		StyleConstants.setForeground(messages, Color.BLACK);
 		
-		DefaultCaret caret = (DefaultCaret)tpChatDisplay.getCaret();
+		DefaultCaret caret = (DefaultCaret)jtpChatDisplay.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		
-		scrollPaneDISPLAY = new JScrollPane(tpChatDisplay);
+		scrollPaneDISPLAY = new JScrollPane(jtpChatDisplay);
 		scrollPaneDISPLAY.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPaneDISPLAY.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);;
 	}
@@ -188,30 +200,27 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	public void login() {	
 
 		LoginGUI login = new LoginGUI(this, accountManager.getAccounts(), channelManager.getChannels());
-		if(login.isValid()){
-			
-			tpChatDisplay.setText("");
+		if(login.isValid()){			
+			jtpChatDisplay.setText("");
 			
 			String nick = login.getNick();
 			String pass = login.getPass();
 			String channel = login.getChannel();
 			
-			//connect
-			client = new Client(nick, pass, new DisplayService(tpChatDisplay, nick, channel));
-
-			client.connectToChannel(channel);
-			if(nick.equalsIgnoreCase(Client.CRAPPY_BOT)){
-				client.insertBot(new Bot(vocab));
-			}
+			setTitle("Connecting...");
+			client = new Client(nick, pass, channel, jtpChatDisplay, msbUI.getDisplayPane());
+			client.connectToServer(Client.DEFAULT_SERVER, Client.DEFAULT_PORT);
+			
+			client.connectToChannel();			
 			
 			txtInput.setEnabled(true);
+			setTitle(DEFAULT_TITLE);
 		}
-		
 		login = null;
 	}
 	
 	public void checkConnected(){
-		if(client.isConnected()){
+		if(client != null && client.isConnected()){
 			miLogin.setEnabled(false);
 			miDisconnect.setEnabled(true);
 			txtInput.setEnabled(true);
@@ -219,6 +228,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			miLogin.setEnabled(true);
 			miDisconnect.setEnabled(false);
 			txtInput.setEnabled(false);
+			miVocabulary.setEnabled(false);
 		}
 	}
 	
@@ -230,6 +240,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 				if(client != null){
 					setTitle("Disconnecting...");
 					client.disconnectFromServer();
+					client = null;
 				}
 			} catch (IOException | InterruptedException e1) {e1.printStackTrace();}
 			
@@ -247,25 +258,41 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 				client.write("PRIVMSG " + client.getChannel() + " :" +input);
 			}
 				txtInput.setText("");
-		} else if(actionCommand.equalsIgnoreCase("login")){
+		} 
+		
+		else if(actionCommand.equalsIgnoreCase("login")){
 			try{
 				login();
 			} catch (Exception e1){
 				e1.printStackTrace();
 			}
-		} else if(actionCommand.equalsIgnoreCase("disconnect")){
+		} 
+		
+		else if(actionCommand.equalsIgnoreCase("disconnect")){
 			try {
 				client.disconnectFromServer();
 				JOptionPane.showMessageDialog(getContentPane(), "*******Disconnect from " + client.getChannel() +"********\n");
+				client = null;
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
-		} else if(actionCommand.equalsIgnoreCase("accounts")){
+		} 
+		
+		else if(actionCommand.equalsIgnoreCase("accounts")){
 			accountManager.showUI();;
-		} else if(actionCommand.equalsIgnoreCase("vocab")){
-			vocab.show(true);
-		} else if(actionCommand.equalsIgnoreCase("channels")){
+		} 
+		
+		else if(actionCommand.equalsIgnoreCase("vocab")){
+			client.getVocab().show(true);
+		} 
+		
+		else if(actionCommand.equalsIgnoreCase("channels")){
 			channelManager.showUI();
+		}
+		
+		else if(actionCommand.equalsIgnoreCase("Server Messages")){
+			msbUI.setLocationRelativeTo(this);
+			msbUI.setVisible(true);
 		}
 	}	
 }

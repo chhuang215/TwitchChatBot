@@ -18,7 +18,7 @@ public class AccountManager implements Comparator<Account>{
 	public static final String ACCOUNT_FILE_NAME = "accounts";
 	
 	private ArrayList<Account> accounts;
-	private AccountManagerUI ui;
+	private AccountManageUI ui;
 	
 	public AccountManager() {
 		
@@ -28,7 +28,7 @@ public class AccountManager implements Comparator<Account>{
 
 	public void showUI(){
 		if (ui == null){
-			ui = new AccountManagerUI(this);
+			ui = new AccountManageUI(this);
 		}
 		ui.setVisible(true);
 	}

@@ -4,8 +4,8 @@ public class Bot {
 	private Vocabulary vocab;
 	private String channel;
 	
-	public Bot(Vocabulary vocab){
-		this.vocab = vocab;
+	public Bot(){
+		vocab = new Vocabulary();;
 	}
 	
 	public String generateOutput(String userInput){
@@ -16,11 +16,13 @@ public class Bot {
 		}else{
 			return "PRIVMSG " + channel +" :" + output;
 		}
-			
-	
 	}
 	
 	public void setChannel(String channel){
 		this.channel = channel;
+	}
+	
+	public Vocabulary getVocab(){
+		return vocab;
 	}
 }

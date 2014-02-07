@@ -7,7 +7,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
+import javax.swing.JTextPane;
+
 import com.chhuang.bot.Bot;
+import com.chhuang.bot.Vocabulary;
+import com.chhuang.display.ChatDisplayService;
+import com.chhuang.display.MessageDisplayService;
 
 public class Client {
 	//public static ArrayList<Server> running_clients = new ArrayList<Client>(); FUTURE
@@ -22,25 +27,38 @@ public class Client {
 		,"WATCH","WHO","WHOIS","WHOWAS"};
 	
 	private boolean connected = false; 
+	private boolean connectedToServer = false;
+	private boolean connectedToChannel = false;
+
+	
+	private String nick;
+	private String pass;
+	private String channel;
 	
 	private Socket socket;
 	private BufferedReader reader;
 	private BufferedWriter writer;
-	private DisplayService display;
+	private ChatDisplayService chatDisplay;
+	private MessageDisplayService messageDisplay;
+	private MessageListener ml;
 	private Bot bot;
-	
-	private String channel;
 	
 	private Thread incoming;
 	
-	public Client(String nick, String pass, DisplayService displayService) {
-		this.display = displayService;
-		bot = null;
-		connectToServer(DEFAULT_SERVER, DEFAULT_PORT, nick, pass);		
-		
+	
+	public Client(String nick, String pass, String channel, JTextPane jtpChatDisplay, JTextPane jtpMessageDisplay) {
+		this.nick = nick;
+		this.pass = pass;
+		this.channel = channel;
+		chatDisplay = new ChatDisplayService(jtpChatDisplay, nick, channel);
+		messageDisplay = new MessageDisplayService(jtpMessageDisplay);
+		ml = new MessageListener(chatDisplay, messageDisplay);
+		if(nick.equalsIgnoreCase(CRAPPY_BOT)){
+			insertBot(new Bot());	
+		}
 	} 
 
-	public void connectToServer(String hostname, int port, String nick, String pass){
+	public void connectToServer(String hostname, int port){
 		try {
 			socket = new Socket(hostname, port);
 			
@@ -52,10 +70,9 @@ public class Client {
 			
 			incoming = new Thread(new Incoming());
 			incoming.start();
-			
 		} catch (IOException e) {
 			e.printStackTrace();
-			display.output("NOT ABLE TO CONNECT TO " + hostname + "/" + port);
+			chatDisplay.output("NOT ABLE TO CONNECT TO " + hostname + "/" + port);
 		}
 		
 	}
@@ -64,6 +81,10 @@ public class Client {
 		
 		write("QUIT");
 
+		connected = false; 
+		connectedToServer = false;
+		connectedToChannel = false;
+		
 		incoming.join();
 		
 		reader.close();
@@ -73,10 +94,13 @@ public class Client {
 		connected = false;
 	}
 	
+	public void connectToChannel(){
+		connectToChannel(channel);
+	}
+	
 	public void connectToChannel(String channel){
 		
 		this.channel = channel.toLowerCase();
-
 		write("JOIN " + channel);
 	}
 	
@@ -91,12 +115,12 @@ public class Client {
 			if(msg != null && !msg.trim().equals("")){	
 				writer.write(msg + "\r\n");
 				writer.flush();
-				display.output(msg);
+				chatDisplay.output(msg);
 			}
 			
 		} catch (IOException e) {
-			display.output("*You are not connected to server*");
-			display.output(msg);
+			chatDisplay.output("*You are not connected to server*");
+			chatDisplay.output(msg);
 		}
 	}
 	
@@ -113,6 +137,16 @@ public class Client {
 		return connected;
 	}
 	
+	public boolean isConnectedToServer(){
+		return connectedToServer;
+	}
+	
+	public Vocabulary getVocab(){
+		if(bot != null)
+			return bot.getVocab();
+		return null;
+	}
+	
 	private class Incoming implements Runnable {
 
 		public void run() {
@@ -120,7 +154,7 @@ public class Client {
 			try {				
 				while(!Thread.currentThread().isInterrupted() && ((line = reader.readLine()) != null)){
 					
-					display.output(line);
+					ml.output(line);
 					
 					/*--AVOID DISCONNECTION--*/
 					if (line.startsWith("PING ")){
@@ -131,21 +165,27 @@ public class Client {
 					
 					if(!connected){
 						if(line.indexOf("001") >= 0){
-							display.output("Authenticate Success!");
-							connected = true;
-						}
-						else if(line.indexOf("Login unsuccessful") >= 0){
-							display.output("Login unsuccessful");
+							chatDisplay.output("Authenticate Success!");
+							connectedToServer = true;
+						} else if(line.indexOf("353") >= 0 ){
+							chatDisplay.output("Connected to " + channel);
+							connectedToChannel = true;
+						} else if(line.indexOf("Login unsuccessful") >= 0){
+							chatDisplay.output("Login unsuccessful");
 							return;
+						}
+						
+						if(connectedToServer && connectedToChannel){
+							connected = true;
 						}
 					}
 					
-					if(bot != null && !display.getMessage().equals("")){
-						write(bot.generateOutput(display.getMessage()));
+					if(bot != null && !chatDisplay.getMessage().equals("")){
+						write(bot.generateOutput(chatDisplay.getMessage()));
 					}
 				}
 				
-				display.output("**DISCONNECTED**");
+				chatDisplay.output("**DISCONNECTED**");
 			} catch (IOException e) {
 				Thread.currentThread().interrupt();
 				e.printStackTrace();

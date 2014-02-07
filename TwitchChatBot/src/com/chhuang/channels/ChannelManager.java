@@ -14,7 +14,7 @@ public class ChannelManager {
 	public static final String CHANNEL_FILE_NAME = "channels";
 	
 	private ArrayList<String> channels;
-	private ChannelManagerUI ui;
+	private ChannelManageUI ui;
 	
 	public ChannelManager() {
 		initializeChannels();
@@ -22,7 +22,7 @@ public class ChannelManager {
 	
 	public void showUI(){
 		if(ui == null)
-			ui = new ChannelManagerUI(this);
+			ui = new ChannelManageUI(this);
 		ui.setVisible(true);
 	}
 	

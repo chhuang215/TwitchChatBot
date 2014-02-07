@@ -1,49 +1,36 @@
-package com.chhuang.irc;
+package com.chhuang.display;
 
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.StyledDocument;
 
-public class DisplayService {
-
-	public static final int MAX_LINES = 450;
+public class ChatDisplayService extends DisplayService{
 	
-	private int lines = 0;
-	private String myNick, channel;
-	private String message;
-
-	private JTextPane display;
-	private StyledDocument doc;
+	private String myNick, channel, message;
 	
-	public DisplayService(Object displayObj, String nick, String channel) {
+	public ChatDisplayService(JTextPane displayObj, String nick, String channel) {
+		super(displayObj);
 		this.myNick = nick;
 		this.channel = channel;
 		message = "";
-		if(displayObj instanceof JTextPane){
-			display = (JTextPane)displayObj;
-			doc = display.getStyledDocument();
-		}
 	}
 	
-	public void output(String msg){
+	public void output(String line){
 		try{
-			if(msg != null && !msg.equals("") && !msg.contains(" JOIN ") && !msg.contains(" PART ")){
+			if(!isEmptyString(line) && !line.contains(" JOIN ") && !line.contains(" PART ")){
 				message = "";
 				
-				if(msg.startsWith(":") && msg.contains("PRIVMSG") && !msg.contains("jtv")){
-					outputPrivmsg(msg);
+				if(line.startsWith(":") && line.contains("PRIVMSG ") && !line.contains("jtv")){
+					outputPrivmsg(line);
 					
-				}else if(msg.startsWith("PRIVMSG ")){
-					outputPrivmsg(this.myNick + "(me)", msg.substring(msg.indexOf(":") + 1));
+				}else if(line.startsWith("PRIVMSG ")){
+					outputPrivmsg(this.myNick + "(me)", line.substring(line.indexOf(":") + 1));
 				}else{
-					doc.insertString(doc.getLength(), msg, doc.getStyle("default"));
+					doc.insertString(doc.getLength(), line, doc.getStyle("default"));
 				}
 				
 				doc.insertString(doc.getLength(), "\n", doc.getStyle("default"));
-				lines++;
-				if(lines > MAX_LINES){
-					doc.remove(0, display.getText().indexOf("\n"));
-				}
+				currentNumOfLines++;
+				maximumLineFormat();
 			}
 		}catch(BadLocationException e){e.printStackTrace();};
 	}
