@@ -33,22 +33,20 @@ import com.chhuang.channels.ChannelManager;
 public class MainChatBoxUI extends JFrame implements ActionListener{
 
 	public static final String TWITCH_SERVER = "irc.twitch.tv";
-	
 	public static final String DEFAULT_TITLE = "TWITCH CHAT";
-	
-	MessageBoxUI msbUI = new MessageBoxUI();
 	
 	private Client client;
 	
 	private AccountManager accountManager;
 	private ChannelManager channelManager;
+	private MessageBoxUI msbUI;
 	
 	private JPanel panelTextBox;
 	private JPanel panelMainPane;
 	private JTextField txtInput;
 	private JTextPane jtpChatDisplay;
 	
-	private JButton btn;
+	private JButton btnEnter;
 	private JScrollPane scrollPaneDISPLAY;
 	
 	private JMenuBar menuBar;
@@ -71,6 +69,8 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		
 		accountManager = new AccountManager();
 		channelManager = new ChannelManager();
+		msbUI = new MessageBoxUI();
+		msbUI.setLocationRelativeTo(this);
 		
 		menuBar = new JMenuBar();
 		jmMenu = new JMenu("Menu");
@@ -147,14 +147,25 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		/*--------------*/
 		
 		/*--Button--*/
-		btn = new JButton("Enter");
-		btn.setActionCommand("send");
-		btn.addActionListener(this);
+		btnEnter = new JButton("Enter");
+		btnEnter.setActionCommand("send");
+		btnEnter.addActionListener(this);
+		
+		/*JButton btnMemoryTesting = new JButton("SHOW YOURSELF!");
+		btnMemoryTesting.setActionCommand("memory");
+		btnMemoryTesting.addActionListener(this);*/
+		
 		/*----------*/
+		
+		//lblMemory = new JLabel();
+		//JPanel panelMemory = new JPanel(new GridLayout(3,1,2,2));
+		
+		//panelMemory.add(btnMemoryTesting);
+		//panelMemory.add(lblMemory);
 		
 		panelTextBox = new JPanel(new BorderLayout(4,2));
 		panelTextBox.add(txtInput, BorderLayout.CENTER);
-		panelTextBox.add(btn, BorderLayout.EAST);
+		panelTextBox.add(btnEnter, BorderLayout.EAST);
 		
 		panelMainPane = new JPanel(new BorderLayout());
 		panelMainPane.add(scrollPaneDISPLAY, BorderLayout.CENTER);
@@ -268,13 +279,19 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		} 
 		
 		else if(actionCommand.equalsIgnoreCase("disconnect")){
-			try {
+				try {
 				client.disconnectFromServer();
+			
 				JOptionPane.showMessageDialog(getContentPane(), "*******Disconnect from " + client.getChannel() +"********\n");
 				client = null;
-			} catch (Exception e1) {
+				setTitle(DEFAULT_TITLE);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+				JOptionPane.showMessageDialog(this, "ERROR: Client not found.");
+			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
+		
 		} 
 		
 		else if(actionCommand.equalsIgnoreCase("accounts")){
@@ -290,8 +307,21 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		}
 		
 		else if(actionCommand.equalsIgnoreCase("Server Messages")){
-			msbUI.setLocationRelativeTo(this);
 			msbUI.setVisible(true);
 		}
+		
+		/*else if(actionCommand.equalsIgnoreCase("memory")){
+			Runtime r = Runtime.getRuntime();
+			long total = r.totalMemory()/1024 ;
+			long max = r.maxMemory()/1024;
+			long free = r.freeMemory()/1024;
+			long used = (r.totalMemory() - r.freeMemory())/1024;		
+			
+			lblMemory.setText("<html>Max: " + max + " KB<br>" +
+						"Total: " + total + " KB<br>" +
+						"Free: " + free + " KB<br>" + 
+						"Used: " + used + " KB</html>");
+		
+		}*/
 	}	
 }

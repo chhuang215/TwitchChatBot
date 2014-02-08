@@ -26,10 +26,10 @@ public class Client {
 		,"SETNAME","SILENCE","STATS","SUMMON","TIME","TOPIC","TRACE","UHNAMES","USER","USERHOST","USERIP","USERS","VERSION","WALLOPS"
 		,"WATCH","WHO","WHOIS","WHOWAS"};
 	
-	private boolean connected = false; 
 	private boolean connectedToServer = false;
 	private boolean connectedToChannel = false;
-
+	private boolean botMode = false;
+	
 	private String nick;
 	private String pass;
 	private String channel;
@@ -64,7 +64,7 @@ public class Client {
 			socket = new Socket(hostname, port);
 			
 			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")); 
-			reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"), 6000);
 			
 			write("PASS " + pass);
 			write("NICK " + nick);
@@ -84,17 +84,16 @@ public class Client {
 		
 		incoming.join();
 
-		connected = false; 
 		connectedToServer = false;
 		connectedToChannel = false;
-		
+		botMode = false;
 		messageDisplay.reset();
 		
 		reader.close();
 		writer.close();
 		socket.close();
-
-		connected = false;
+		
+		System.gc();
 	}
 	
 	public void connectToChannel(){
@@ -130,6 +129,7 @@ public class Client {
 	public void insertBot(Bot bot){
 		this.bot = bot;
 		bot.setChannel(channel);
+		botMode = true;
 	}
 	
 	public String getChannel(){
@@ -137,7 +137,7 @@ public class Client {
 	}
 	
 	public boolean isConnected(){
-		return connected;
+		return connectedToServer && connectedToChannel;
 	}
 	
 	public boolean isConnectedToServer(){
@@ -151,11 +151,23 @@ public class Client {
 	}
 	
 	private class Incoming implements Runnable {
-
+		
+		//private short lineReaded = 0;
+		
+		/*private void checkMemory(){
+			lineReaded++;
+			if(lineReaded > 1300){
+				System.gc();
+				lineReaded = 0;
+			}
+		}*/
+		
 		public void run() {
 			String line = null;
-			try {				
+			try {		
+				/*vCONTINUE READING FROM SOCKETv*/
 				while(!Thread.currentThread().isInterrupted() && ((line = reader.readLine()) != null)){
+					//checkMemory();
 					ml.output(line);
 					
 					/*--AVOID DISCONNECTION--*/
@@ -164,7 +176,7 @@ public class Client {
 					}
 					/*-----------------------*/
 					
-					if(!connected){
+					if(!(connectedToServer && connectedToChannel)){
 						if(line.indexOf("001") >= 0){
 							chatDisplay.output("Authenticate Success!");
 							connectedToServer = true;
@@ -173,25 +185,24 @@ public class Client {
 							connectedToChannel = true;
 						} else if(line.indexOf("Login unsuccessful") >= 0){
 							chatDisplay.output("Login unsuccessful");
-							return;
+							break;
 						}
-						
-						if(connectedToServer && connectedToChannel){
-							connected = true;
-						}
+						continue;
 					}
 					
-					if(bot != null && !chatDisplay.getMessage().equals("")){
+					if(botMode && !chatDisplay.getMessage().equals("")){
 						write(bot.generateOutput(chatDisplay.getMessage()));
 					}
 				}
-				
+				/*^CONTINUE READING FROM SOCKET^*/
 				chatDisplay.output("**DISCONNECTED**");
+				
 			} catch (IOException e) {
 				Thread.currentThread().interrupt();
 				e.printStackTrace();
 				System.out.println("SOCKET DISCONNECT!");
-				connected = false;
+				connectedToServer = false;
+				connectedToChannel = false;
 			} 
 		}
 	}

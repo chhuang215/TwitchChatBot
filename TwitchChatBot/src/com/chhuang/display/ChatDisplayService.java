@@ -32,7 +32,7 @@ public class ChatDisplayService extends DisplayService{
 				currentNumOfLines++;
 				
 			}
-		}catch(BadLocationException e){e.printStackTrace();};
+		}catch(BadLocationException e){e.printStackTrace();}
 	}
 	
 	/**

@@ -35,4 +35,8 @@ public class MessageListener {
 			chatDisplay.output(msg);
 		}
 	}
+	
+	public void write(){
+		
+	}
 }
