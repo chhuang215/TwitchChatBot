@@ -30,7 +30,6 @@ public class Client {
 	private boolean connectedToServer = false;
 	private boolean connectedToChannel = false;
 
-	
 	private String nick;
 	private String pass;
 	private String channel;
@@ -52,6 +51,8 @@ public class Client {
 		this.channel = channel;
 		chatDisplay = new ChatDisplayService(jtpChatDisplay, nick, channel);
 		messageDisplay = new MessageDisplayService(jtpMessageDisplay);
+		chatDisplay.reset();
+		
 		ml = new MessageListener(chatDisplay, messageDisplay);
 		if(nick.equalsIgnoreCase(CRAPPY_BOT)){
 			insertBot(new Bot());	
@@ -80,12 +81,14 @@ public class Client {
 	public void disconnectFromServer() throws IOException, InterruptedException{
 		
 		write("QUIT");
+		
+		incoming.join();
 
 		connected = false; 
 		connectedToServer = false;
 		connectedToChannel = false;
 		
-		incoming.join();
+		messageDisplay.reset();
 		
 		reader.close();
 		writer.close();
@@ -153,13 +156,11 @@ public class Client {
 			String line = null;
 			try {				
 				while(!Thread.currentThread().isInterrupted() && ((line = reader.readLine()) != null)){
-					
 					ml.output(line);
 					
 					/*--AVOID DISCONNECTION--*/
 					if (line.startsWith("PING ")){
 						write("PONG " + line.substring(5));
-						//write("PRIVMSG " + channel + " :I got pinged!");
 					}
 					/*-----------------------*/
 					

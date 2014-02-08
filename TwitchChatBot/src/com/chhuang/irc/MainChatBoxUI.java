@@ -201,7 +201,6 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 
 		LoginGUI login = new LoginGUI(this, accountManager.getAccounts(), channelManager.getChannels());
 		if(login.isValid()){			
-			jtpChatDisplay.setText("");
 			
 			String nick = login.getNick();
 			String pass = login.getPass();
@@ -214,7 +213,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			client.connectToChannel();			
 			
 			txtInput.setEnabled(true);
-			setTitle(DEFAULT_TITLE);
+			setTitle(DEFAULT_TITLE + " " +client.getChannel());
 		}
 		login = null;
 	}

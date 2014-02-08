@@ -7,7 +7,7 @@ public class MessageDisplayService extends DisplayService {
 
 	public MessageDisplayService(JTextPane jtpDisplay) {
 		super(jtpDisplay);
-		max_lines = 245;
+		max_lines = 100;
 		
 	}
 
@@ -15,10 +15,10 @@ public class MessageDisplayService extends DisplayService {
 	public void output(String line) {
 		try {
 			if(!isEmptyString(line)){
-				
-				doc.insertString(doc.getLength(), line + "\n", doc.getStyle("default"));
-				currentNumOfLines++;
 				maximumLineFormat();
+				doc.insertString(doc.getLength(), line + "\n", doc.getStyle("default"));
+	
+				currentNumOfLines++;	
 			}
 			
 		} catch (BadLocationException e) {
@@ -26,5 +26,4 @@ public class MessageDisplayService extends DisplayService {
 		}
 
 	}
-
 }

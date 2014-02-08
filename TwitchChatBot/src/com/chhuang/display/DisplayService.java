@@ -5,7 +5,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
 
 public abstract class DisplayService {
-	public static final int DEFAULT_MAX_LINES = 450;
+	public static final int DEFAULT_MAX_LINES = 300;
 	protected int currentNumOfLines = 0;
 	protected JTextPane display;
 	protected StyledDocument doc;
@@ -21,6 +21,14 @@ public abstract class DisplayService {
 		if(currentNumOfLines > max_lines){
 			doc.remove(0, display.getText().indexOf("\n"));
 		}
+	}
+	
+	public void reset(){
+		try {
+			doc.remove(0, doc.getLength());
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		};
 	}
 	
 	public boolean isEmptyString(String str){

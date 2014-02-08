@@ -16,9 +16,9 @@ public class ChatDisplayService extends DisplayService{
 	
 	public void output(String line){
 		try{
-			if(!isEmptyString(line) && !line.contains(" JOIN ") && !line.contains(" PART ")){
+			if(!isEmptyString(line)){
 				message = "";
-				
+				maximumLineFormat();
 				if(line.startsWith(":") && line.contains("PRIVMSG ") && !line.contains("jtv")){
 					outputPrivmsg(line);
 					
@@ -30,7 +30,7 @@ public class ChatDisplayService extends DisplayService{
 				
 				doc.insertString(doc.getLength(), "\n", doc.getStyle("default"));
 				currentNumOfLines++;
-				maximumLineFormat();
+				
 			}
 		}catch(BadLocationException e){e.printStackTrace();};
 	}

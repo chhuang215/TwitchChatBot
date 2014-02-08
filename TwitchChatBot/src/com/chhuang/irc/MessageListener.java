@@ -26,9 +26,12 @@ public class MessageListener {
 	}
 	
 	public void output(String msg){
-		if(msg.contains(" JOIN ") || msg.contains((" PART ")) || msg.contains(" 353 ")){
+		if(msg.contains(" JOIN ") || msg.contains((" PART "))){
 			messageDisplay.output(msg);
-		}else{
+		}else if (msg.contains(" 353 ")){
+			
+		}		
+		else{
 			chatDisplay.output(msg);
 		}
 	}

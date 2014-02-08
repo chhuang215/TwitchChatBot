@@ -20,7 +20,7 @@ public class MessageBoxUI extends JFrame {
 	
 	public MessageBoxUI(){
 		setTitle("Incoming");
-		setSize(450,600);
+		setSize(550,600);
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		initializeDisplay();
@@ -35,7 +35,7 @@ public class MessageBoxUI extends JFrame {
 		
 		StyledDocument doc = jtpDisplay.getStyledDocument();
 		Style defaultStyle = doc.addStyle("default", StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE));
-		StyleConstants.setFontSize(defaultStyle, 13);
+		StyleConstants.setFontSize(defaultStyle, 12);
 		StyleConstants.setForeground(defaultStyle, Color.WHITE);
 		StyleConstants.setFontFamily(defaultStyle, "Arial Unicode MS");
 		scrollPane = new JScrollPane(jtpDisplay);
