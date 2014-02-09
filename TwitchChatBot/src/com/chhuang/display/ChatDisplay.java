@@ -3,21 +3,27 @@ package com.chhuang.display;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 
-public class ChatDisplayService extends DisplayService{
+/**
+ * @author chhuang
+ * The main display functionality
+ */
+public class ChatDisplay extends TextDisplay{
 	
-	private String myNick, channel, message;
+	private String myNick, currentConnectedChannel, lastChatMessage;
 	
-	public ChatDisplayService(JTextPane displayObj, String nick, String channel) {
+	public ChatDisplay(JTextPane displayObj) {
 		super(displayObj);
-		this.myNick = nick;
-		this.channel = channel;
-		message = "";
+		lastChatMessage = "";
 	}
 	
+	/**
+	 * Output the line onto the display
+	 * @param line
+	 */
 	public void output(String line){
 		try{
 			if(!isEmptyString(line)){
-				message = "";
+				lastChatMessage = "";
 				maximumLineFormat();
 				if(line.startsWith(":") && line.contains("PRIVMSG ") && !line.contains("jtv")){
 					outputPrivmsg(line);
@@ -41,10 +47,10 @@ public class ChatDisplayService extends DisplayService{
 	 */
 	private void outputPrivmsg(String msg){
 		String nick = msg.substring(msg.indexOf(":") + 1, msg.indexOf("!"));
-		String beforeMessage = " PRIVMSG " + channel + " :";
-		message = msg.substring(msg.lastIndexOf(beforeMessage) + beforeMessage.length());
+		String beforeMessage = " PRIVMSG " + currentConnectedChannel + " :";
+		lastChatMessage = msg.substring(msg.lastIndexOf(beforeMessage) + beforeMessage.length());
 		
-		outputPrivmsg(nick, message);
+		outputPrivmsg(nick, lastChatMessage);
 	}
 	
 	/**
@@ -61,8 +67,28 @@ public class ChatDisplayService extends DisplayService{
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * 
+	 * @param nick
+	 */
+	public void setUserNick(String nick){
+		myNick = nick;
+	}
 	
-	public String getMessage(){
-		return message;
+	/**
+	 * 
+	 * @param channel
+	 */
+	public void setCurrentChannel(String channel){
+		currentConnectedChannel = channel;
+	}
+	
+	/**
+	 * 
+	 * @return String lastChatMessage
+	 */
+	public String getLastChatMessage(){
+		return lastChatMessage;
 	}
 }

@@ -6,13 +6,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import javax.swing.JTextPane;
 
 import com.chhuang.bot.Bot;
-import com.chhuang.bot.Vocabulary;
-import com.chhuang.display.ChatDisplayService;
-import com.chhuang.display.MessageDisplayService;
+import com.chhuang.display.ChatDisplay;
+import com.chhuang.display.ServerMessageDisplay;
 
 public class Client {
 	//public static ArrayList<Server> running_clients = new ArrayList<Client>(); FUTURE
@@ -37,8 +37,8 @@ public class Client {
 	private Socket socket;
 	private BufferedReader reader;
 	private BufferedWriter writer;
-	private ChatDisplayService chatDisplay;
-	private MessageDisplayService messageDisplay;
+	private ChatDisplay chatDisplay;
+	private ServerMessageDisplay messageDisplay;
 	private MessageListener ml;
 	private Bot bot;
 	
@@ -49,8 +49,10 @@ public class Client {
 		this.nick = nick;
 		this.pass = pass;
 		this.channel = channel;
-		chatDisplay = new ChatDisplayService(jtpChatDisplay, nick, channel);
-		messageDisplay = new MessageDisplayService(jtpMessageDisplay);
+		chatDisplay = new ChatDisplay(jtpChatDisplay);
+		chatDisplay.setUserNick(nick);
+		chatDisplay.setCurrentChannel(channel);
+		messageDisplay = new ServerMessageDisplay(jtpMessageDisplay);
 		chatDisplay.reset();
 		
 		ml = new MessageListener(chatDisplay, messageDisplay);
@@ -59,27 +61,24 @@ public class Client {
 		}
 	} 
 
-	public void connectToServer(String hostname, int port){
-		try {
-			socket = new Socket(hostname, port);
-			
-			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")); 
-			reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"), 6000);
-			
-			write("PASS " + pass);
-			write("NICK " + nick);
-			
-			incoming = new Thread(new Incoming());
-			incoming.start();
-		} catch (IOException e) {
-			e.printStackTrace();
-			chatDisplay.output("NOT ABLE TO CONNECT TO " + hostname + "/" + port);
-		}
+	public void connectToServer(String hostname, int port) throws UnknownHostException, IOException{
+		socket = new Socket(hostname, port);
+				
+		writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")); 
+		reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"), 6000);
 		
+		ml.setWriter(writer);
+		
+		write("PASS " + pass);
+		write("NICK " + nick);
+		
+		incoming = new Thread(new Incoming());
+		incoming.start();
+	
 	}
 	
 	public void disconnectFromServer() throws IOException, InterruptedException{
-		
+
 		write("QUIT");
 		
 		incoming.join();
@@ -88,11 +87,6 @@ public class Client {
 		connectedToChannel = false;
 		botMode = false;
 		messageDisplay.reset();
-		
-		reader.close();
-		writer.close();
-		socket.close();
-		
 		System.gc();
 	}
 	
@@ -106,20 +100,9 @@ public class Client {
 		write("JOIN " + channel);
 	}
 	
-	/*public void disconnectFromCurrentChannel() throws IOException{
-		write("PART " + channel);
-	}*/
-	
-	public void write(String msg){
-		
-		try {
-			
-			if(msg != null && !msg.trim().equals("")){	
-				writer.write(msg + "\r\n");
-				writer.flush();
-				chatDisplay.output(msg);
-			}
-			
+	public void write(String msg){		
+		try {		
+			ml.write(msg);
 		} catch (IOException e) {
 			chatDisplay.output("*You are not connected to server*");
 			chatDisplay.output(msg);
@@ -144,24 +127,16 @@ public class Client {
 		return connectedToServer;
 	}
 	
-	public Vocabulary getVocab(){
-		if(bot != null)
-			return bot.getVocab();
-		return null;
+	public Bot getBot(){
+		return bot;
+	}
+	
+	public boolean isBotMode(){
+		return botMode;
 	}
 	
 	private class Incoming implements Runnable {
-		
-		//private short lineReaded = 0;
-		
-		/*private void checkMemory(){
-			lineReaded++;
-			if(lineReaded > 1300){
-				System.gc();
-				lineReaded = 0;
-			}
-		}*/
-		
+
 		public void run() {
 			String line = null;
 			try {		
@@ -176,7 +151,7 @@ public class Client {
 					}
 					/*-----------------------*/
 					
-					if(!(connectedToServer && connectedToChannel)){
+					if(!isConnected()){
 						if(line.indexOf("001") >= 0){
 							chatDisplay.output("Authenticate Success!");
 							connectedToServer = true;
@@ -190,17 +165,23 @@ public class Client {
 						continue;
 					}
 					
-					if(botMode && !chatDisplay.getMessage().equals("")){
-						write(bot.generateOutput(chatDisplay.getMessage()));
+					if(botMode && !chatDisplay.getLastChatMessage().equals("")){
+						write(bot.generateOutput(chatDisplay.getLastChatMessage()));
 					}
 				}
 				/*^CONTINUE READING FROM SOCKET^*/
+				
+				// Disconnect, close all the buffers and socket
 				chatDisplay.output("**DISCONNECTED**");
+				
+				reader.close();
+				writer.close();
+				socket.close();
 				
 			} catch (IOException e) {
 				Thread.currentThread().interrupt();
 				e.printStackTrace();
-				System.out.println("SOCKET DISCONNECT!");
+				System.out.println("UNEXPECTED DISCONNECTION!");
 				connectedToServer = false;
 				connectedToChannel = false;
 			} 

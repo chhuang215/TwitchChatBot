@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 import com.chhuang.accounts.Account;
 
-public class LoginGUI{
+public class Login{
 	
 	public static final int LOGIN_CLICKED = 0;
 
@@ -23,36 +23,29 @@ public class LoginGUI{
 	private String nick;
 	private String pass;
 	private String channel;
-	
+
 	private JLabel lblNick;
 	private JLabel lblCh;
 	private JComboBox<String> txtNicks;
 	private JComboBox<String> jcbChannel;
 
-	public LoginGUI(JFrame frame, ArrayList<Account> accounts, ArrayList<String> channels) {
-
+	public Login(JFrame mainFrame, ArrayList<Account> accounts, ArrayList<String> channels) {
 		this.accounts =  accounts;
 		this.channels = channels;
-		choice = JOptionPane.showOptionDialog(frame, getPane(), "Login", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE, null,new String[] {"Login", "Cancel"}, "Login");
+		choice = JOptionPane.showOptionDialog(mainFrame, getPane(), "Login", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE, null,new String[] {"Login", "Cancel"}, "Login");
 		if(choice == LOGIN_CLICKED) login();
 		
 	}
 	
 	public void login(){
-		
 		int index = txtNicks.getSelectedIndex();
 		nick = accounts.get(index).getNick();
 		pass = accounts.get(index).getPass();
 		channel = (String)jcbChannel.getSelectedItem();;
-		
-		if (nick != null && !nick.trim().equals("") && channel != null && !channel.trim().equals("")){ 
-			nick = nick.trim();
-			channel = channel.trim();
-			valid = true;
-		}
+		valid = true;
 	}
 	
-	public JPanel getPane(){
+	private JPanel getPane(){
 		
 		JPanel mainPane = new JPanel();
 		JPanel pLabels = new JPanel();
@@ -85,7 +78,6 @@ public class LoginGUI{
 		
 		return mainPane;
 	}
-	
 	
 	public String getNick(){
 		return nick;

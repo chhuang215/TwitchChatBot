@@ -171,21 +171,17 @@ public class Vocabulary implements ActionListener{
 		userInput = userInput.toLowerCase();
 		Random r = new Random();
 		ArrayList<PhraseCollection> matchingKeys = new ArrayList<PhraseCollection>();
-		if(phrases.size() != 0){
+		if(!phrases.isEmpty()){
 			for(int index = 0; index < phrases.size(); index++){
 				if(userInput.contains(phrases.get(index).getKey())){
 					matchingKeys.add(phrases.get(index));
 				}
 			}
+			
+			if(!matchingKeys.isEmpty()){
+				return matchingKeys.get(r.nextInt(matchingKeys.size())).getPhrase();
+			}	
 		}
-		else{
-			return "";
-		}
-		
-		if(matchingKeys.size() > 0){
-			return matchingKeys.get(r.nextInt(matchingKeys.size())).getPhrase();
-		}
-		
 		return "";
 	}
 	
@@ -233,13 +229,8 @@ public class Vocabulary implements ActionListener{
 		return -1;
 	}
 
-	
-	public void show(boolean showMe){
-		if(showMe){
-			jfrm.setVisible(true);
-		}else{
-			jfrm.setVisible(false);
-		}
+	public void showUI(){
+		jfrm.setVisible(true);
 	}
 	
 	public void reset(){
@@ -247,10 +238,7 @@ public class Vocabulary implements ActionListener{
 		DefaultListModel<String> dlm  = (DefaultListModel<String>)lstKeys.getModel();
 		dlm.clear();
 		
-		//jtp.removeAll();
-		
 		for(int i = 0; i < phrases.size(); i++){
-			//jtp.addTab(phrases.get(i).getKey(), phrases.get(i).getJListPhrases());
 			dlm.addElement(phrases.get(i).getKey());
 		}
 	}

@@ -1,26 +1,30 @@
 package com.chhuang.irc;
 
-import com.chhuang.display.ChatDisplayService;
-import com.chhuang.display.MessageDisplayService;
+import java.io.BufferedWriter;
+import java.io.IOException;
+
+import com.chhuang.display.ChatDisplay;
+import com.chhuang.display.ServerMessageDisplay;
 
 public class MessageListener {
 	
-	private ChatDisplayService chatDisplay;
-	private MessageDisplayService messageDisplay;
+	private ChatDisplay chatDisplay;
+	private ServerMessageDisplay messageDisplay;
+	private BufferedWriter writer;
 		
 	public MessageListener(){
 		
 	}
 	
-	public MessageListener(ChatDisplayService display){
+	public MessageListener(ChatDisplay display){
 		chatDisplay = display;
 	}
 	
-	public MessageListener(MessageDisplayService display){
+	public MessageListener(ServerMessageDisplay display){
 		messageDisplay = display;
 	}
 	
-	public MessageListener(ChatDisplayService cds, MessageDisplayService mds){
+	public MessageListener(ChatDisplay cds, ServerMessageDisplay mds){
 		chatDisplay = cds;
 		messageDisplay = mds;
 	}
@@ -28,7 +32,8 @@ public class MessageListener {
 	public void output(String msg){
 		if(msg.contains(" JOIN ") || msg.contains((" PART "))){
 			messageDisplay.output(msg);
-		}else if (msg.contains(" 353 ")){
+		}
+		else if (msg.contains(" 353 ")){
 			
 		}		
 		else{
@@ -36,7 +41,20 @@ public class MessageListener {
 		}
 	}
 	
-	public void write(){
+	public void write(String msg) throws IOException{
 		
+		if(!isEmpty(msg)){	
+			writer.write(msg + "\r\n");
+			writer.flush();
+			chatDisplay.output(msg);
+		}	
+	}
+	
+	public void setWriter(BufferedWriter bw){
+		writer = bw;
+	}	
+	
+	private boolean isEmpty(String str){
+		return str.trim().equals("");
 	}
 }

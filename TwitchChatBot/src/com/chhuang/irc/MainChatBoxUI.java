@@ -32,7 +32,6 @@ import com.chhuang.channels.ChannelManager;
 @SuppressWarnings("serial")
 public class MainChatBoxUI extends JFrame implements ActionListener{
 
-	public static final String TWITCH_SERVER = "irc.twitch.tv";
 	public static final String DEFAULT_TITLE = "TWITCH CHAT";
 	
 	private Client client;
@@ -90,13 +89,12 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		jmCrappyBot.addMenuListener(new MenuListener() {
 			@Override
 			public void menuSelected(MenuEvent arg0) {
-				if(client != null && client.getVocab() != null){
+				if(client != null && client.isBotMode()){
 					miVocabulary.setEnabled(true);
 					checkConnected();
 				}else{
 					miVocabulary.setEnabled(false);
 				}
-				
 			}
 			@Override
 			public void menuDeselected(MenuEvent arg0) {}
@@ -114,7 +112,8 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		miAccounts = new JMenuItem("Accounts");
 		miAccounts.addActionListener(this);
 		
-		miVocabulary = new JMenuItem("Vocab");
+		miVocabulary = new JMenuItem("Show Vocab");
+		miVocabulary.setActionCommand("vocab");
 		miVocabulary.addActionListener(this);
 		
 		miChannels = new JMenuItem("Channels");
@@ -181,6 +180,9 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		setVisible(true);
 	}
 
+	/**
+	 * Initialize chat text display 
+	 */
 	private void initializeChatDisplayTextPane() {
 		
 		jtpChatDisplay = new JTextPane();
@@ -210,9 +212,9 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 
 	public void login() {	
 
-		LoginGUI login = new LoginGUI(this, accountManager.getAccounts(), channelManager.getChannels());
+		Login login = new Login(this, accountManager.getAccounts(), channelManager.getChannels());
 		if(login.isValid()){			
-			
+			try{
 			String nick = login.getNick();
 			String pass = login.getPass();
 			String channel = login.getChannel();
@@ -220,11 +222,16 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			setTitle("Connecting...");
 			client = new Client(nick, pass, channel, jtpChatDisplay, msbUI.getDisplayPane());
 			client.connectToServer(Client.DEFAULT_SERVER, Client.DEFAULT_PORT);
-			
 			client.connectToChannel();			
 			
 			txtInput.setEnabled(true);
-			setTitle(DEFAULT_TITLE + " " +client.getChannel());
+			setTitle(DEFAULT_TITLE + " " + client.getChannel());
+			} catch(Exception e){
+				e.printStackTrace();
+				jtpChatDisplay.setText("NOT ABLE TO CONNECT TO " + Client.DEFAULT_SERVER + "/" + Client.DEFAULT_PORT);
+				login = null;
+				return;
+			}
 		}
 		login = null;
 	}
@@ -247,7 +254,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		public void windowClosing(WindowEvent e){
 			/* Terminates the program */
 			try {
-				if(client != null){
+				if(client != null && client.isConnected()){
 					setTitle("Disconnecting...");
 					client.disconnectFromServer();
 					client = null;
@@ -267,7 +274,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			if(client != null){
 				client.write("PRIVMSG " + client.getChannel() + " :" +input);
 			}
-				txtInput.setText("");
+			txtInput.setText("");
 		} 
 		
 		else if(actionCommand.equalsIgnoreCase("login")){
@@ -279,12 +286,14 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		} 
 		
 		else if(actionCommand.equalsIgnoreCase("disconnect")){
-				try {
+			try {
+				
 				client.disconnectFromServer();
-			
-				JOptionPane.showMessageDialog(getContentPane(), "*******Disconnect from " + client.getChannel() +"********\n");
-				client = null;
+				
 				setTitle(DEFAULT_TITLE);
+
+				client = null;
+				
 			} catch (IOException e1) {
 				e1.printStackTrace();
 				JOptionPane.showMessageDialog(this, "ERROR: Client not found.");
@@ -295,11 +304,11 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		} 
 		
 		else if(actionCommand.equalsIgnoreCase("accounts")){
-			accountManager.showUI();;
+			accountManager.showUI();
 		} 
 		
 		else if(actionCommand.equalsIgnoreCase("vocab")){
-			client.getVocab().show(true);
+			client.getBot().getVocab().showUI();
 		} 
 		
 		else if(actionCommand.equalsIgnoreCase("channels")){
