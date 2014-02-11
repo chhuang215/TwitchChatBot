@@ -1,5 +1,7 @@
 package com.chhuang.display;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.LinkedList;
 
 import javax.swing.JTextPane;
@@ -10,16 +12,20 @@ public abstract class TextDisplay {
 	
 	public static final int DEFAULT_MAX_LINES = 300;
 	protected LinkedList<String> messageQueue;
-	protected int currentNumOfLines = 0;
+	protected int max_lines;
+	protected int currentNumOfLines;
 	protected JTextPane display;
 	protected StyledDocument doc;
-	protected int max_lines;
+	protected SimpleDateFormat sdf;
+	protected String now;
 	
-	public TextDisplay(JTextPane jtpDisplay){
-		display = jtpDisplay;
-		doc = display.getStyledDocument();
+	public TextDisplay(){
+		setDisplayPane(new JTextPane());
+		sdf = new SimpleDateFormat("[HH:mm:ss] ");
 		max_lines = DEFAULT_MAX_LINES;
+		currentNumOfLines = 0;
 	}
+	
 	
 	public void maximumLineFormat() throws BadLocationException{
 		if(currentNumOfLines > max_lines){
@@ -35,19 +41,35 @@ public abstract class TextDisplay {
 		};
 	}
 	
-	public boolean isEmptyString(String str){
-		return (str == null || str.equals(""));
-	}
-	
 	public void setDisplayPane(JTextPane jtp){
 		display = jtp;
+		doc = display.getStyledDocument();
 	}
 	
 	public JTextPane getDisplayPane(){
 		return display;
 	}
 	
+	public void output(String line){
+		
+		try {
+			if(!line.isEmpty()){
+				maximumLineFormat();
+				now = sdf.format(Calendar.getInstance().getTime());
+				doc.insertString(doc.getLength(), now, doc.getStyle("default"));
+				
+				outputMessages(line);
+				
+				doc.insertString(doc.getLength(), "\n", doc.getStyle("default"));
+				currentNumOfLines++;
+			}
+		
+		} catch (BadLocationException e) {e.printStackTrace();}
+	}	
 	
-	public abstract void output(String line);
+	protected abstract void initializeDisplay();
+	
+
+	public abstract void outputMessages(String line) throws BadLocationException;
 	
 }

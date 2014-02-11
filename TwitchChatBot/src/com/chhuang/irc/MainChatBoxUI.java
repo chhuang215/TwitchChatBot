@@ -1,6 +1,5 @@
 package com.chhuang.irc;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -16,18 +15,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
-import javax.swing.text.DefaultCaret;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
-import javax.swing.text.StyledDocument;
+import javax.swing.text.BadLocationException;
 
 import com.chhuang.accounts.*;
 import com.chhuang.channels.ChannelManager;
+import com.chhuang.display.ChatDisplay;
 
 @SuppressWarnings("serial")
 public class MainChatBoxUI extends JFrame implements ActionListener{
@@ -39,11 +34,11 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	private AccountManager accountManager;
 	private ChannelManager channelManager;
 	private MessageBoxUI msbUI;
+	private ChatDisplay chatDisplay;
 	
 	private JPanel panelTextBox;
 	private JPanel panelMainPane;
 	private JTextField txtInput;
-	private JTextPane jtpChatDisplay;
 	
 	private JButton btnEnter;
 	private JScrollPane scrollPaneDISPLAY;
@@ -74,7 +69,6 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		menuBar = new JMenuBar();
 		jmMenu = new JMenu("Menu");
 		jmMenu.addMenuListener(new MenuListener() {
-			
 			@Override
 			public void menuSelected(MenuEvent arg0) {
 				checkConnected();
@@ -136,7 +130,11 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		/*
 		 * -----------MAIN PANEL--------------
 		 */
-		initializeChatDisplayTextPane();
+		chatDisplay = new ChatDisplay();
+		
+		scrollPaneDISPLAY = new JScrollPane(chatDisplay.getDisplayPane());
+		scrollPaneDISPLAY.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPaneDISPLAY.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);;
 
 		/*--TextField0--*/
 		txtInput = new JTextField();
@@ -180,36 +178,6 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		setVisible(true);
 	}
 
-	/**
-	 * Initialize chat text display 
-	 */
-	private void initializeChatDisplayTextPane() {
-		
-		jtpChatDisplay = new JTextPane();
-		jtpChatDisplay.setEditable(false);
-		jtpChatDisplay.setBackground(Color.LIGHT_GRAY);
-		
-		StyledDocument doc = jtpChatDisplay.getStyledDocument();
-		
-		Style defaultStyle = doc.addStyle("default", StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE));
-		StyleConstants.setFontSize(defaultStyle, 13);
-		StyleConstants.setForeground(defaultStyle, Color.DARK_GRAY);
-		StyleConstants.setFontFamily(defaultStyle, "Arial Unicode MS");
-
-		Style styleNames = doc.addStyle("names", defaultStyle);
-		StyleConstants.setForeground(styleNames, Color.BLUE);
-		
-		Style messages = doc.addStyle("messages", defaultStyle);
-		StyleConstants.setForeground(messages, Color.BLACK);
-		
-		DefaultCaret caret = (DefaultCaret)jtpChatDisplay.getCaret();
-		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		
-		scrollPaneDISPLAY = new JScrollPane(jtpChatDisplay);
-		scrollPaneDISPLAY.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPaneDISPLAY.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);;
-	}
-
 	public void login() {	
 
 		Login login = new Login(this, accountManager.getAccounts(), channelManager.getChannels());
@@ -220,7 +188,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			String channel = login.getChannel();
 			
 			setTitle("Connecting...");
-			client = new Client(nick, pass, channel, jtpChatDisplay, msbUI.getDisplayPane());
+			client = new Client(nick, pass, channel, chatDisplay, msbUI.getDisplay());
 			client.connectToServer(Client.DEFAULT_SERVER, Client.DEFAULT_PORT);
 			client.connectToChannel();			
 			
@@ -228,7 +196,8 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			setTitle(DEFAULT_TITLE + " " + client.getChannel());
 			} catch(Exception e){
 				e.printStackTrace();
-				jtpChatDisplay.setText("NOT ABLE TO CONNECT TO " + Client.DEFAULT_SERVER + "/" + Client.DEFAULT_PORT);
+				chatDisplay.reset();
+				chatDisplay.output("NOT ABLE TO CONNECT TO " + Client.DEFAULT_SERVER + "/" + Client.DEFAULT_PORT);
 				login = null;
 				return;
 			}
@@ -259,7 +228,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 					client.disconnectFromServer();
 					client = null;
 				}
-			} catch (IOException | InterruptedException e1) {e1.printStackTrace();}
+			} catch (IOException | InterruptedException e1) {e1.printStackTrace(); System.exit(0);}
 			
 			dispose();
 			System.exit(0);
@@ -273,6 +242,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			String input = txtInput.getText();
 			if(client != null){
 				client.write("PRIVMSG " + client.getChannel() + " :" +input);
+				//client.write(input);
 			}
 			txtInput.setText("");
 		} 
@@ -287,11 +257,9 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		
 		else if(actionCommand.equalsIgnoreCase("disconnect")){
 			try {
-				
+				setTitle(getTitle() + " Disconnecting...");
 				client.disconnectFromServer();
-				
 				setTitle(DEFAULT_TITLE);
-
 				client = null;
 				
 			} catch (IOException e1) {
@@ -317,6 +285,11 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		
 		else if(actionCommand.equalsIgnoreCase("Server Messages")){
 			msbUI.setVisible(true);
+			try {
+				msbUI.getDisplay().showQueueMessages();
+			} catch (BadLocationException e1) {
+				e1.printStackTrace();
+			}
 		}
 		
 		/*else if(actionCommand.equalsIgnoreCase("memory")){

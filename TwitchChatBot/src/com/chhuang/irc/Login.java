@@ -39,8 +39,9 @@ public class Login{
 	
 	public void login(){
 		int index = txtNicks.getSelectedIndex();
-		nick = accounts.get(index).getNick();
-		pass = accounts.get(index).getPass();
+		Account selectedAcc = accounts.get(index);
+		nick = selectedAcc.getNick();
+		pass = selectedAcc.getPass();
 		channel = (String)jcbChannel.getSelectedItem();;
 		valid = true;
 	}

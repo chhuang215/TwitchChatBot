@@ -1,50 +1,56 @@
 package com.chhuang.display;
 
+import java.awt.Color;
 import java.util.LinkedList;
 
-import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultCaret;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 
 public class ServerMessageDisplay extends TextDisplay {
 
-	
-	public ServerMessageDisplay(JTextPane jtpDisplay) {
-		super(jtpDisplay);
+	public ServerMessageDisplay(){
+		super();
+		initializeDisplay();
 		max_lines = 133;
 		messageQueue = new LinkedList<String>();
+	}
+	
+	@Override
+	protected void initializeDisplay() {
+		display.setEditable(false);
+		display.setBackground(Color.DARK_GRAY);
 		
+		Style defaultStyle = doc.addStyle("default", StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE));
+		StyleConstants.setFontSize(defaultStyle, 12);
+		StyleConstants.setForeground(defaultStyle, Color.WHITE);
+		StyleConstants.setFontFamily(defaultStyle, "Arial Unicode MS");
+		
+		DefaultCaret caret = (DefaultCaret)display.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 	}
 
 	@Override
-	public void output(String line) {
-		if(!isEmptyString(line)){
-			if (display.getRootPane().getParent().isVisible()){
-				try {
-					
-					maximumLineFormat();
-					doc.insertString(doc.getLength(), line + "\n", doc.getStyle("default"));
+	public void outputMessages(String line) throws BadLocationException {
+
+		if (display.getRootPane().getParent().isVisible()){
+			doc.insertString(doc.getLength(), line, doc.getStyle("default"));
+
+		}
 		
-					currentNumOfLines++;	
-					
-					
-				} catch (BadLocationException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			else{
-				messageQueue.add(line);
-				if(messageQueue.size() > max_lines){
-					messageQueue.removeLast();
-				}
+		else{
+			messageQueue.addLast(now + line);
+			if(messageQueue.size() > max_lines){
+				messageQueue.removeFirst();
 			}
 		}
 	}
 	
 	public void showQueueMessages() throws BadLocationException{
 		while(!messageQueue.isEmpty()){
-			doc.insertString(doc.getLength(), messageQueue.removeLast() + "\n", doc.getStyle("default"));
-		}
-		
+			doc.insertString(doc.getLength(), messageQueue.removeFirst() + "\n", doc.getStyle("default"));
+		}	
 	}
 }

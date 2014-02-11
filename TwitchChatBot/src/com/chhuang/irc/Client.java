@@ -8,23 +8,16 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import javax.swing.JTextPane;
-
 import com.chhuang.bot.Bot;
 import com.chhuang.display.ChatDisplay;
 import com.chhuang.display.ServerMessageDisplay;
 
 public class Client {
-	//public static ArrayList<Server> running_clients = new ArrayList<Client>(); FUTURE
-
 	public static final int DEFAULT_PORT = 6667;
 	public static final String DEFAULT_SERVER = "irc.twitch.tv";
 	public static final String CRAPPY_BOT = "CrappyBot";
-	public static final String[] IRC_COMMANDS = {"ADMIN", "AWAY", "CNOTICE", "CPRIVMSG", "CONNECT", "DIE", "ENCAP","ERROR","HELP"
-		,"INFO","INVITE","ISON", "JOIN", "KICK","KILL","KNOCK","LINKS","LIST","LUSERS","MODE","MOTD","NAMES","NAMESX","NICK","NOTICE"
-		,"OPER","PART","PASS","PING","PONG","PRIVMSG","QUIT","REHASH","RESTART","RULES","SERVER","SERVICE","SERVLIST","SQUERY","SQUIT"
-		,"SETNAME","SILENCE","STATS","SUMMON","TIME","TOPIC","TRACE","UHNAMES","USER","USERHOST","USERIP","USERS","VERSION","WALLOPS"
-		,"WATCH","WHO","WHOIS","WHOWAS"};
+	public static final String[] TWITCH_IRC_COMMANDS = 
+		{"CPRIVMSG", "JOIN", "MODE", "NICK", "PART", "PASS", "PING", "PONG", "PRIVMSG", "QUIT", "USER", "TWITCHCLIENT", "JTVCLIENT"};
 	
 	private boolean connectedToServer = false;
 	private boolean connectedToChannel = false;
@@ -44,20 +37,22 @@ public class Client {
 	
 	private Thread incoming;
 	
-	
-	public Client(String nick, String pass, String channel, JTextPane jtpChatDisplay, JTextPane jtpMessageDisplay) {
+	public Client(String nick, String pass, String channel, ChatDisplay cd, ServerMessageDisplay smd) {
 		this.nick = nick;
 		this.pass = pass;
 		this.channel = channel;
-		chatDisplay = new ChatDisplay(jtpChatDisplay);
+		chatDisplay = cd;
+		messageDisplay = smd;
 		chatDisplay.setUserNick(nick);
 		chatDisplay.setCurrentChannel(channel);
-		messageDisplay = new ServerMessageDisplay(jtpMessageDisplay);
 		chatDisplay.reset();
+		messageDisplay.reset();		
 		
 		ml = new MessageListener(chatDisplay, messageDisplay);
 		if(nick.equalsIgnoreCase(CRAPPY_BOT)){
-			insertBot(new Bot());	
+			bot = new Bot();
+			bot.setChannel(channel);
+			botMode = true;	
 		}
 	} 
 
@@ -107,12 +102,6 @@ public class Client {
 			chatDisplay.output("*You are not connected to server*");
 			chatDisplay.output(msg);
 		}
-	}
-	
-	public void insertBot(Bot bot){
-		this.bot = bot;
-		bot.setChannel(channel);
-		botMode = true;
 	}
 	
 	public String getChannel(){

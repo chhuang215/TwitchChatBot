@@ -3,6 +3,7 @@ package com.chhuang.irc;
 import java.io.BufferedWriter;
 import java.io.IOException;
 
+
 import com.chhuang.display.ChatDisplay;
 import com.chhuang.display.ServerMessageDisplay;
 
@@ -11,7 +12,7 @@ public class MessageListener {
 	private ChatDisplay chatDisplay;
 	private ServerMessageDisplay messageDisplay;
 	private BufferedWriter writer;
-		
+	
 	public MessageListener(){
 		
 	}
@@ -43,7 +44,8 @@ public class MessageListener {
 	
 	public void write(String msg) throws IOException{
 		
-		if(!isEmpty(msg)){	
+		if(!isEmpty(msg)){
+			
 			writer.write(msg + "\r\n");
 			writer.flush();
 			chatDisplay.output(msg);

@@ -1,21 +1,17 @@
 package com.chhuang.irc;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
-import javax.swing.text.StyledDocument;
+
+import com.chhuang.display.ServerMessageDisplay;
 
 @SuppressWarnings("serial")
 public class MessageBoxUI extends JFrame {
-	
-	private JTextPane jtpDisplay;
+
+	private ServerMessageDisplay serverMessageDisplay;
 	private JScrollPane scrollPane;
 	
 	public MessageBoxUI(){
@@ -23,28 +19,17 @@ public class MessageBoxUI extends JFrame {
 		setSize(550,600);
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		initializeDisplay();
+		serverMessageDisplay = new ServerMessageDisplay();
+		
+		scrollPane = new JScrollPane(serverMessageDisplay.getDisplayPane());
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 	}
 	
-	public void initializeDisplay(){
-		jtpDisplay = new JTextPane();
-		jtpDisplay.setEditable(false);
-		jtpDisplay.setBackground(Color.DARK_GRAY);
-		
-		StyledDocument doc = jtpDisplay.getStyledDocument();
-		Style defaultStyle = doc.addStyle("default", StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE));
-		StyleConstants.setFontSize(defaultStyle, 12);
-		StyleConstants.setForeground(defaultStyle, Color.WHITE);
-		StyleConstants.setFontFamily(defaultStyle, "Arial Unicode MS");
-		scrollPane = new JScrollPane(jtpDisplay);
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-	}
-	
-	public JTextPane getDisplayPane(){
-		return jtpDisplay;
+	public ServerMessageDisplay getDisplay(){
+		return serverMessageDisplay;
 	}
 	
 }
