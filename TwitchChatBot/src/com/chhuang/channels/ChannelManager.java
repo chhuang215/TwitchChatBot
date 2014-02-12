@@ -27,8 +27,8 @@ public class ChannelManager {
 	}
 	
 	private void initializeChannels(){
-		channels = new ArrayList<String>();
 		if(!loadChannels()){
+			channels = new ArrayList<String>();
 			channels.add("#gemhuang2151992");
 		}
 	}	

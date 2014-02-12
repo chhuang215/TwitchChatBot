@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 import com.chhuang.accounts.Account;
 
-public class Login{
+public class Login {
 	
 	public static final int LOGIN_CLICKED = 0;
 
@@ -38,12 +38,15 @@ public class Login{
 	}
 	
 	public void login(){
+		
 		int index = txtNicks.getSelectedIndex();
 		Account selectedAcc = accounts.get(index);
 		nick = selectedAcc.getNick();
 		pass = selectedAcc.getPass();
-		channel = (String)jcbChannel.getSelectedItem();;
+		channel = (String)jcbChannel.getSelectedItem();
+		
 		valid = true;
+	
 	}
 	
 	private JPanel getPane(){
@@ -62,13 +65,12 @@ public class Login{
 		for(int i = 0; i < accounts.size(); i++){
 			strNicks[i] = accounts.get(i).getNick();
 		}
-		
 
 		String[] strChannels = channels.toArray(new String[0]);
 		
 		txtNicks = new JComboBox<String>(strNicks);
 		jcbChannel = new JComboBox<String>(strChannels);
-		
+
 		pLabels.add(lblNick);
 		pLabels.add(lblCh);
 		pInputs.add(txtNicks);
@@ -79,6 +81,7 @@ public class Login{
 		
 		return mainPane;
 	}
+	
 	
 	public String getNick(){
 		return nick;

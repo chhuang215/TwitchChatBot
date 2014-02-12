@@ -69,13 +69,11 @@ public class Client {
 		
 		incoming = new Thread(new Incoming());
 		incoming.start();
-	
 	}
 	
-	public void disconnectFromServer() throws IOException, InterruptedException{
-
+	public synchronized void disconnectFromServer() throws IOException, InterruptedException{
 		write("QUIT");
-		
+	
 		incoming.join();
 
 		connectedToServer = false;
@@ -90,12 +88,11 @@ public class Client {
 	}
 	
 	public void connectToChannel(String channel){
-		
 		this.channel = channel.toLowerCase();
 		write("JOIN " + channel);
 	}
 	
-	public void write(String msg){		
+	public synchronized void write(String msg){		
 		try {		
 			ml.write(msg);
 		} catch (IOException e) {
@@ -131,7 +128,6 @@ public class Client {
 			try {		
 				/*vCONTINUE READING FROM SOCKETv*/
 				while(!Thread.currentThread().isInterrupted() && ((line = reader.readLine()) != null)){
-					//checkMemory();
 					ml.output(line);
 					
 					/*--AVOID DISCONNECTION--*/

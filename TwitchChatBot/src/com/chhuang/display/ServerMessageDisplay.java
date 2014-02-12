@@ -1,7 +1,6 @@
 package com.chhuang.display;
 
 import java.awt.Color;
-import java.util.LinkedList;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultCaret;
@@ -15,7 +14,6 @@ public class ServerMessageDisplay extends TextDisplay {
 		super();
 		initializeDisplay();
 		max_lines = 133;
-		messageQueue = new LinkedList<String>();
 	}
 	
 	@Override
@@ -48,7 +46,7 @@ public class ServerMessageDisplay extends TextDisplay {
 		}
 	}
 	
-	public void showQueueMessages() throws BadLocationException{
+	public void showQueueMessages() throws BadLocationException, InterruptedException{
 		while(!messageQueue.isEmpty()){
 			doc.insertString(doc.getLength(), messageQueue.removeFirst() + "\n", doc.getStyle("default"));
 		}	

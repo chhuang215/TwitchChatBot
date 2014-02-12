@@ -34,10 +34,10 @@ public class AccountManager implements Comparator<Account>{
 	}
 	
 	public void initializeAccounts(){
-		accounts = new ArrayList<Account>();
+		
 		if(!loadAccounts()){
-			Account newAccount = new Account(Client.CRAPPY_BOT, "oauth");	
-			accounts.add(newAccount);
+			accounts = new ArrayList<Account>();
+			accounts.add(new Account(Client.CRAPPY_BOT, "oauth"));
 		}
 		Collections.sort(accounts, this);
 	}

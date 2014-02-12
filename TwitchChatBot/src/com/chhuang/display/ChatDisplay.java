@@ -22,7 +22,6 @@ public class ChatDisplay extends TextDisplay{
 		lastChatMessage = "";
 	}
 	
-	
 	protected void initializeDisplay(){
 		display.setEditable(false);
 		display.setBackground(Color.LIGHT_GRAY);

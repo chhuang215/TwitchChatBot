@@ -16,7 +16,6 @@ import com.chhuang.irc.ManageUI;
 public class ChannelManageUI extends ManageUI {
 	
 	private ChannelManager channelManager;
-	
 	/**
 	 * @param _channelManager
 	 */
@@ -33,8 +32,34 @@ public class ChannelManageUI extends ManageUI {
 		
 		initializeList();
 		
+		/*lst.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent arg0) {
+				if(!arg0.getValueIsAdjusting()){
+					String channel = lst.getSelectedValue();
+					checkOnlineStatus(channel.substring(1));
+				}
+			}
+		});*/
+		
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 	}
+	/*
+	private void checkOnlineStatus(String ch){
+		try {
+			URL url = new URL("http://api.justin.tv/api/stream/list.json?jsonp=&channel=" + ch);
+			BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+			
+			if(!br.readLine().equals("[]")){
+				lst.setSelectionForeground(Color.GREEN);
+				return;
+			}
+			
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}*/
 	
 	@Override
 	protected void resetList() {

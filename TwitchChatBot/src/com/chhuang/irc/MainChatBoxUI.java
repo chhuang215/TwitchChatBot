@@ -1,5 +1,6 @@
 package com.chhuang.irc;
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -8,6 +9,7 @@ import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -36,6 +38,9 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	private MessageBoxUI msbUI;
 	private ChatDisplay chatDisplay;
 	
+	private JFrame jfrmMemory;
+	private JLabel lblMemory;
+	
 	private JPanel panelTextBox;
 	private JPanel panelMainPane;
 	private JTextField txtInput;
@@ -52,6 +57,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	private JMenuItem miAccounts;
 	private JMenuItem miChannels;
 	private JMenuItem miIncoming;
+	private JMenuItem miMemory;
 	
 	public MainChatBoxUI(){
 		setTitle(DEFAULT_TITLE);
@@ -116,11 +122,15 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		miIncoming = new JMenuItem("Server Messages");
 		miIncoming.addActionListener(this);
 		
+		miMemory = new JMenuItem("memory");
+		miMemory.addActionListener(this);
+		
 		jmMenu.add(miLogin);
 		jmMenu.add(miDisconnect);
 		jmMenu.add(miChannels);
 		jmMenu.add(miAccounts);
 		jmMenu.add(miIncoming);
+		jmMenu.add(miMemory);
 		
 		jmCrappyBot.add(miVocabulary);
 
@@ -148,17 +158,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		btnEnter.setActionCommand("send");
 		btnEnter.addActionListener(this);
 		
-		/*JButton btnMemoryTesting = new JButton("SHOW YOURSELF!");
-		btnMemoryTesting.setActionCommand("memory");
-		btnMemoryTesting.addActionListener(this);*/
-		
 		/*----------*/
-		
-		//lblMemory = new JLabel();
-		//JPanel panelMemory = new JPanel(new GridLayout(3,1,2,2));
-		
-		//panelMemory.add(btnMemoryTesting);
-		//panelMemory.add(lblMemory);
 		
 		panelTextBox = new JPanel(new BorderLayout(4,2));
 		panelTextBox.add(txtInput, BorderLayout.CENTER);
@@ -174,7 +174,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		
 		setJMenuBar(menuBar);
 		getContentPane().add(panelMainPane, BorderLayout.CENTER);
-		
+
 		setVisible(true);
 	}
 
@@ -216,6 +216,19 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			txtInput.setEnabled(false);
 			miVocabulary.setEnabled(false);
 		}
+	}
+	
+	public void showMemory(){
+		Runtime r = Runtime.getRuntime();
+		long total = r.totalMemory()/1024 ;
+		long max = r.maxMemory()/1024;
+		long free = r.freeMemory()/1024;
+		long used = (r.totalMemory() - r.freeMemory())/1024;		
+		
+		lblMemory.setText("<html>Max: " + max + " KB<br>" +
+					"Total: " + total + " KB<br>" +
+					"Free: " + free + " KB<br>" + 
+					"Used: " + used + " KB</html>");
 	}
 	
 	private class WindowListener extends WindowAdapter{
@@ -287,23 +300,35 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			msbUI.setVisible(true);
 			try {
 				msbUI.getDisplay().showQueueMessages();
-			} catch (BadLocationException e1) {
+			} catch (BadLocationException | InterruptedException e1) {
 				e1.printStackTrace();
 			}
 		}
 		
-		/*else if(actionCommand.equalsIgnoreCase("memory")){
-			Runtime r = Runtime.getRuntime();
-			long total = r.totalMemory()/1024 ;
-			long max = r.maxMemory()/1024;
-			long free = r.freeMemory()/1024;
-			long used = (r.totalMemory() - r.freeMemory())/1024;		
-			
-			lblMemory.setText("<html>Max: " + max + " KB<br>" +
-						"Total: " + total + " KB<br>" +
-						"Free: " + free + " KB<br>" + 
-						"Used: " + used + " KB</html>");
-		
-		}*/
+		else if(actionCommand.equalsIgnoreCase("memory")){
+		 	
+		 	if(jfrmMemory == null){
+		 		jfrmMemory = new JFrame("Memory");
+		 		jfrmMemory.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		 		jfrmMemory.setLayout(new BorderLayout());
+		 		jfrmMemory.setSize(200, 200);
+		 		jfrmMemory.setResizable(false);
+		 		lblMemory = new JLabel();
+		 		lblMemory.setHorizontalAlignment(JLabel.CENTER);
+		 		lblMemory.setFont(new Font("Arial", Font.PLAIN, 20));
+		 		JButton btn = new JButton("Show");
+		 		btn.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						showMemory();
+					}
+				});
+		 		jfrmMemory.getContentPane().add(lblMemory, BorderLayout.CENTER);
+		 		jfrmMemory.getContentPane().add(btn, BorderLayout.SOUTH);
+		 		
+		 	}
+		 	jfrmMemory.setVisible(true);
+		 	showMemory();
+		 	
+		}
 	}	
 }

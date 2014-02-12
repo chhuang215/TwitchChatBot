@@ -22,10 +22,10 @@ public abstract class TextDisplay {
 	public TextDisplay(){
 		setDisplayPane(new JTextPane());
 		sdf = new SimpleDateFormat("[HH:mm:ss] ");
+		messageQueue = new LinkedList<String>();
 		max_lines = DEFAULT_MAX_LINES;
 		currentNumOfLines = 0;
 	}
-	
 	
 	public void maximumLineFormat() throws BadLocationException{
 		if(currentNumOfLines > max_lines){
@@ -36,6 +36,8 @@ public abstract class TextDisplay {
 	public void reset(){
 		try {
 			doc.remove(0, doc.getLength());
+			currentNumOfLines = 0;
+			messageQueue.clear();
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		};
@@ -50,8 +52,7 @@ public abstract class TextDisplay {
 		return display;
 	}
 	
-	public void output(String line){
-		
+	public synchronized void output(String line){
 		try {
 			if(!line.isEmpty()){
 				maximumLineFormat();
@@ -69,7 +70,5 @@ public abstract class TextDisplay {
 	
 	protected abstract void initializeDisplay();
 	
-
 	public abstract void outputMessages(String line) throws BadLocationException;
-	
 }
