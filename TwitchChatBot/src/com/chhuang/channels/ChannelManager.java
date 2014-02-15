@@ -14,6 +14,7 @@ public class ChannelManager {
 	public static final String CHANNEL_FILE_NAME = "channels";
 	
 	private ArrayList<String> channels;
+	//private ArrayList<Channel> channels;
 	private ChannelManageUI ui;
 	
 	public ChannelManager() {
@@ -33,17 +34,24 @@ public class ChannelManager {
 		}
 	}	
 	
-	public void addChannel(String channel){
-		if(channel != null && !channel.trim().equals("")){
+	public int addChannel(String channel){
+		if(!channel.trim().isEmpty()){
 			channel = channel.trim().toLowerCase();
 			
 			while(channel.startsWith("#")){
 				channel = channel.substring(1);
 			}
 			
-			channels.add("#" + channel);
-			Collections.sort(channels);
+			channel = "#" + channel;
+			
+			if(!channels.contains(channel)){
+				channels.add(channel);
+				Collections.sort(channels);
+				return 0;
+			}
+			return 1;
 		}
+		return -1;
 	}
 
 	public void removeChannel(int index){
@@ -66,6 +74,11 @@ public class ChannelManager {
 	public String getSelectedChannel(int index){
 		return channels.get(index);
 	}
+	
+	public String getSelectedChannel(String ch){		
+		return getSelectedChannel(channels.indexOf(ch));
+	}
+	
 	
 	public ArrayList<String> getChannels(){
 		return channels;
