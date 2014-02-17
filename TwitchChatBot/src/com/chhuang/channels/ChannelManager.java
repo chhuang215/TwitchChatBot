@@ -25,7 +25,7 @@ public class ChannelManager implements Comparator<Channel>{
 		if(ui == null)
 			ui = new ChannelManageUI(this);
 		
-		ui.checkOnline();
+		ui.displayOnlineStatus();
 		ui.setVisible(true);
 	}
 	
@@ -35,10 +35,41 @@ public class ChannelManager implements Comparator<Channel>{
 			channels.add(new Channel("#gemhuang2151992"));
 		}
 		
-		for(Channel ch : channels){
-			ch.checkOnline();
-		}
+		checkOnlineAll();
 	}	
+	
+	public void checkOnline(int index){
+		Channel ch = channels.get(index);
+		checkOnline(ch);
+	}
+	
+	public void checkOnline(Channel ch){
+		try {
+			Thread thread = new Thread(new ChannelOnlineThread(ch));
+			thread.start();
+			thread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void checkOnlineAll(){
+		if(channels.size() < 0) return;
+		
+		try {
+			Thread threads[] = new Thread[channels.size()];
+			for(int i = 0; i < threads.length; i++){
+				threads[i] = new Thread(new ChannelOnlineThread(channels.get(i)));
+			}
+		
+			for(Thread t : threads){
+				if(t.isAlive())
+					t.join();
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public int addChannel(String channel){
 		if(!channel.trim().isEmpty()){
@@ -52,7 +83,7 @@ public class ChannelManager implements Comparator<Channel>{
 			
 			if(!channels.contains(channel)){
 				Channel newCh = new Channel(channel);
-				newCh.checkOnline();
+				checkOnline(newCh);
 				channels.add(newCh);
 				Collections.sort(channels, this);
 				return 0;
@@ -76,7 +107,7 @@ public class ChannelManager implements Comparator<Channel>{
 				channel = channel.substring(1);
 			}
 			channels.get(index).setChannel("#" + channel);
-			channels.get(index).checkOnline();
+			checkOnline(index);
 			Collections.sort(channels, this);
 		}
 	}

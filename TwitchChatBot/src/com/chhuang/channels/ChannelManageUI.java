@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -21,14 +22,17 @@ import com.chhuang.irc.ManageUI;
 @SuppressWarnings("serial")
 public class ChannelManageUI extends ManageUI {
 	
+	public static final String CHANNEL_MANAGER_UI_TITLE = "Channels";
+	
 	private ChannelManager channelManager;
 	private JList<String> lstOnline;
+	private DefaultListModel<String> dlmOnline;
 
 	/**
 	 * @param cm
 	 */
 	public ChannelManageUI(ChannelManager cm) {
-		super("Channels");
+		super(CHANNEL_MANAGER_UI_TITLE);
 		this.channelManager = cm;
 		initializeUI();
 	}
@@ -42,58 +46,59 @@ public class ChannelManageUI extends ManageUI {
 			}
 		});		
 		
+		initializeMainList();
+		
+		/*----Online status display----*/
 		lstOnline = new JList<String>(new DefaultListModel<String>());
-		lstOnline.setOpaque(false);	
+		lstOnline.setOpaque(false);
+		((DefaultListCellRenderer)lstOnline.getCellRenderer()).setHorizontalAlignment(JLabel.RIGHT);;
+		lstOnline.setPrototypeCellValue("LOADING");
+		dlmOnline = (DefaultListModel<String>) lstOnline.getModel();
 		
 		((JLabel)lstOnline.getCellRenderer()).setOpaque(false);;
 		
 		JScrollPane jspOnlineLst = new JScrollPane(lstOnline);
 		jspOnlineLst.getViewport().setOpaque(false);
 		jspOnlineLst.setBorder(null);
+		/*-----------------------------*/
 		
-		JButton btnRefresh = new JButton("Refresh");
-		btnRefresh.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				String title = getTitle();
-				setTitle(title + " - Refreshing...");
-				for(Channel ch : channelManager.getChannels()){
-					ch.checkOnline();
-				}
-				checkOnline();
-				resetList();
-				setTitle(title);
-			}
-		});
-		
-		initializeList();
-		
-		panelButtons.add(btnRefresh);
 		getContentPane().add(scrollPaneMainLst, BorderLayout.CENTER);
 		getContentPane().add(jspOnlineLst, BorderLayout.WEST);
 		
 	}
 
-	public void checkOnline() {
-		DefaultListModel<String> dlm = (DefaultListModel<String>) lstOnline.getModel();
-		dlm.clear();
+	@Override
+	protected void initializeButtons() {
+		super.initializeButtons();
+		JButton btnRefresh = new JButton("Refresh");
+		btnRefresh.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				refresh();
+			}
+		});
+		panelButtons.add(btnRefresh);
+	}
+	
+	public void displayOnlineStatus() {
+		dlmOnline.clear();
 		for(Channel ch : channelManager.getChannels()){
 			if(ch.isOnline()){
-				dlm.addElement("ONLINE");
+				dlmOnline.addElement("ONLINE");
 			} else {
-				dlm.addElement("      ");
+				dlmOnline.addElement("      ");
 			}
 		}
 	}
 
 	@Override
 	protected void resetList() {
-		dlm.clear();
+		dlmMainList.clear();
 		if(!channelManager.getChannels().isEmpty()){
 			for (Channel channel : channelManager.getChannels()){
-				dlm.addElement(channel.getChannel());
+				dlmMainList.addElement(channel.getChannel());
 			}
-			lst.clearSelection();
+			lstMain.clearSelection();
 		}
 	}
 	
@@ -117,7 +122,7 @@ public class ChannelManageUI extends ManageUI {
 					JOptionPane.showMessageDialog(this, "Channel already exists!");	
 				}else
 					channelManager.saveChannels();
-				checkOnline();
+				displayOnlineStatus();
 				resetList();	
 			}
 		}
@@ -125,7 +130,7 @@ public class ChannelManageUI extends ManageUI {
 	
 	@Override
 	public void remove() {
-		int index = lst.getSelectedIndex();
+		int index = lstMain.getSelectedIndex();
 		if(index >= 0){
 			int choice = JOptionPane.showOptionDialog(this, "Remove " + channelManager.getSelectedChannel(index).getChannel() + "?", "Remove channel", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE, null,new String[] {"Yes","Cancel"}, "Cancel");
 			if(choice == 0){
@@ -139,8 +144,8 @@ public class ChannelManageUI extends ManageUI {
 	@Override
 	public void edit() {
 		int index = -1;
-		if((index = lst.getSelectedIndex()) >= 0){
-			String currentSelectedChannel = lst.getSelectedValue();
+		if((index = lstMain.getSelectedIndex()) >= 0){
+			String currentSelectedChannel = lstMain.getSelectedValue();
 			while(currentSelectedChannel.startsWith("#")){
 				currentSelectedChannel = currentSelectedChannel.substring(1);
 			}
@@ -158,9 +163,20 @@ public class ChannelManageUI extends ManageUI {
 				if(editedChannel != null && !editedChannel.equalsIgnoreCase(currentSelectedChannel) && !editedChannel.equals("")){
 					channelManager.editChannel(index, editedChannel);
 					channelManager.saveChannels();
+					displayOnlineStatus();
 					resetList();
 				}
 			}
 		}	
 	}
+	
+	public void refresh(){
+		setTitle(getTitle() + " - Refreshing...");
+		channelManager.checkOnlineAll();
+		displayOnlineStatus();
+		resetList();
+		setTitle(CHANNEL_MANAGER_UI_TITLE);
+	}
+
+	
 }

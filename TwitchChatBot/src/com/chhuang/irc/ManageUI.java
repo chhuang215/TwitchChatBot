@@ -20,8 +20,8 @@ import javax.swing.ListSelectionModel;
 @SuppressWarnings("serial")
 public abstract class ManageUI extends JFrame{
 	public static final Font DEFAULT_FONT = new Font("Arial",Font.PLAIN,15);
-	protected DefaultListModel<String> dlm;
-	protected JList<String> lst;
+	protected DefaultListModel<String> dlmMainList;
+	protected JList<String> lstMain;
 	protected JScrollPane scrollPaneMainLst;
 	protected JButton btnAdd;
 	protected JButton btnRemove;
@@ -30,7 +30,7 @@ public abstract class ManageUI extends JFrame{
 	
 	public ManageUI(String title){
 		setTitle(title);
-		setSize(330,(int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()-50);
+		setSize(350,(int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()-50);
 		setLayout(new BorderLayout(0,5));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -39,7 +39,7 @@ public abstract class ManageUI extends JFrame{
 		getContentPane().add(panelButtons, BorderLayout.SOUTH);
 	}
 	
-	private void initializeButtons(){
+	protected void initializeButtons(){
 		btnAdd = new JButton("Add");
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -67,15 +67,15 @@ public abstract class ManageUI extends JFrame{
 		panelButtons.add(btnEdit);
 	}
 	
-	protected void initializeList(){
-		dlm = new DefaultListModel<String>();
-		lst = new JList<String>(dlm);
-		lst.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		lst.setFont(DEFAULT_FONT);
+	protected void initializeMainList(){
+		dlmMainList = new DefaultListModel<String>();
+		lstMain = new JList<String>(dlmMainList);
+		lstMain.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		lstMain.setFont(DEFAULT_FONT);
 		
 		resetList();
 		
-		lst.addMouseListener(new MouseAdapter() {
+		lstMain.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if(e.getClickCount() == 2){
@@ -84,7 +84,7 @@ public abstract class ManageUI extends JFrame{
 			}
 		});
 		
-		scrollPaneMainLst = new JScrollPane(lst);
+		scrollPaneMainLst = new JScrollPane(lstMain);
 	}
 	
 	protected abstract void resetList();

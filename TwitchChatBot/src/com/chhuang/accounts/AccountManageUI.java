@@ -36,7 +36,7 @@ public class AccountManageUI extends ManageUI{
 			}
 		});
 		
-		initializeList();
+		initializeMainList();
 		
 		lblPass = new JTextField(" ");
 		lblPass.setFont(DEFAULT_FONT);
@@ -45,10 +45,10 @@ public class AccountManageUI extends ManageUI{
 		lblPass.setOpaque(false);
 		lblPass.setEditable(false);
 		
-		lst.addListSelectionListener(new ListSelectionListener() {
+		lstMain.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent arg0) {
 				if(!arg0.getValueIsAdjusting()){
-					int index = lst.getSelectedIndex();
+					int index = lstMain.getSelectedIndex();
 					if(index >= 0){
 						lblPass.setText(accountManager.getSelectedAccount(index).getPass());
 					}else{
@@ -67,12 +67,12 @@ public class AccountManageUI extends ManageUI{
 	}
 
 	protected void resetList(){
-		dlm.clear();
+		dlmMainList.clear();
 		if(!accountManager.getAccounts().isEmpty()){
 			for(Account acc : accountManager.getAccounts()){
-				dlm.addElement(acc.getNick());
+				dlmMainList.addElement(acc.getNick());
 			}
-			lst.clearSelection();
+			lstMain.clearSelection();
 		}
 	}
 
@@ -114,7 +114,7 @@ public class AccountManageUI extends ManageUI{
 
 	@Override
 	public void remove() {
-		int index = lst.getSelectedIndex();
+		int index = lstMain.getSelectedIndex();
 		if(index >= 0){
 			int choice = JOptionPane.showOptionDialog(this, "Remove " + accountManager.getSelectedAccount(index).getNick() + "?", "Remove account", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE, null,new String[] {"Yes","Cancel"}, "Cancel");
 			if(choice == 0){
@@ -127,7 +127,7 @@ public class AccountManageUI extends ManageUI{
 	@Override
 	public void edit() {
 		int index = -1;
-		if((index = lst.getSelectedIndex()) >= 0){
+		if((index = lstMain.getSelectedIndex()) >= 0){
 			Account acc = accountManager.getSelectedAccount(index);
 			
 			JPanel p = new JPanel();
