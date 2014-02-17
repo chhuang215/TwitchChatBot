@@ -136,6 +136,7 @@ public class ChannelManageUI extends ManageUI {
 			if(choice == 0){
 				channelManager.removeChannel(index);
 				channelManager.saveChannels();
+				displayOnlineStatus();
 				resetList();
 			}
 		}
