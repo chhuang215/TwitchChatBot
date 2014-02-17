@@ -21,11 +21,17 @@ public class AccountManager implements Comparator<Account>{
 	private AccountManageUI ui;
 	
 	public AccountManager() {
-		
 		initializeAccounts();
-		
 	}
 
+	public void initializeAccounts(){
+		if(!loadAccounts()){
+			accounts = new ArrayList<Account>();
+			accounts.add(new Account(Client.CRAPPY_BOT, "oauth"));
+		}
+		Collections.sort(accounts, this);
+	}
+	
 	public void showUI(){
 		if (ui == null){
 			ui = new AccountManageUI(this);
@@ -33,15 +39,6 @@ public class AccountManager implements Comparator<Account>{
 		ui.setVisible(true);
 	}
 	
-	public void initializeAccounts(){
-		
-		if(!loadAccounts()){
-			accounts = new ArrayList<Account>();
-			accounts.add(new Account(Client.CRAPPY_BOT, "oauth"));
-		}
-		Collections.sort(accounts, this);
-	}
-
 	public void removeAccount(int index) {
 		if(index >= 0){
 			accounts.remove(index);
@@ -59,9 +56,7 @@ public class AccountManager implements Comparator<Account>{
 	}
 
 	public void addAccount(String nick, String oauth) {
-			
 		if (nick != null && !nick.trim().equals("")){
-			
 			nick = nick.trim();
 			oauth = oauth.trim();
 			Account newAccount = new Account(nick,oauth);
@@ -69,7 +64,6 @@ public class AccountManager implements Comparator<Account>{
 			Collections.sort(accounts, this);
 		}
 	}
-	
 	
 	public boolean saveAccounts(){
 		try{
@@ -89,7 +83,6 @@ public class AccountManager implements Comparator<Account>{
 	
 	@SuppressWarnings("unchecked")
 	public boolean loadAccounts(){
-		
 		try{
 			File file = new File(ACCOUNT_FILE_NAME);
 			FileInputStream fis = new FileInputStream(file);
@@ -113,18 +106,14 @@ public class AccountManager implements Comparator<Account>{
 			e.printStackTrace();
 			return false;
 		}
-		
 	}
+	
 	public int compare(Account acc1, Account acc2) {
-		
 		return acc1.getNick().compareToIgnoreCase(acc2.getNick());
 	}
-
 	
 	public Account getSelectedAccount(int index){
-	
 		return accounts.get(index);
-	
 	}
 	
 	public ArrayList<Account> getAccounts(){

@@ -10,13 +10,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.chhuang.accounts.Account;
+import com.chhuang.channels.Channel;
 
 public class Login {
 	
 	public static final int LOGIN_CLICKED = 0;
 
 	private ArrayList<Account> accounts;
-	private ArrayList<String> channels;
+	private ArrayList<Channel> channels;
 	
 	private boolean valid = false;
 	private int choice;
@@ -26,10 +27,10 @@ public class Login {
 
 	private JLabel lblNick;
 	private JLabel lblCh;
-	private JComboBox<String> txtNicks;
+	private JComboBox<String> jcbNicks;
 	private JComboBox<String> jcbChannel;
 
-	public Login(JFrame mainFrame, ArrayList<Account> accounts, ArrayList<String> channels) {
+	public Login(JFrame mainFrame, ArrayList<Account> accounts, ArrayList<Channel> channels) {
 		this.accounts =  accounts;
 		this.channels = channels;
 		choice = JOptionPane.showOptionDialog(mainFrame, getPane(), "Login", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE, null,new String[] {"Login", "Cancel"}, "Login");
@@ -38,15 +39,16 @@ public class Login {
 	}
 	
 	public void login(){
-		
-		int index = txtNicks.getSelectedIndex();
-		Account selectedAcc = accounts.get(index);
+
+		/*Get selected account*/
+		Account selectedAcc = accounts.get(jcbNicks.getSelectedIndex());
 		nick = selectedAcc.getNick();
 		pass = selectedAcc.getPass();
-		channel = (String)jcbChannel.getSelectedItem();
+		
+		/*Get selected channel*/
+		channel = channels.get(jcbChannel.getSelectedIndex()).getChannel();
 		
 		valid = true;
-	
 	}
 	
 	private JPanel getPane(){
@@ -66,14 +68,17 @@ public class Login {
 			strNicks[i] = accounts.get(i).getNick();
 		}
 
-		String[] strChannels = channels.toArray(new String[0]);
+		String[] strChannels = new String[channels.size()];
+		for(int i = 0; i < channels.size(); i++){
+			strChannels[i] = channels.get(i).getChannel();
+		}
 		
-		txtNicks = new JComboBox<String>(strNicks);
+		jcbNicks = new JComboBox<String>(strNicks);
 		jcbChannel = new JComboBox<String>(strChannels);
 
 		pLabels.add(lblNick);
 		pLabels.add(lblCh);
-		pInputs.add(txtNicks);
+		pInputs.add(jcbNicks);
 		pInputs.add(jcbChannel);
 		
 		mainPane.add(pLabels);
@@ -81,7 +86,6 @@ public class Login {
 		
 		return mainPane;
 	}
-	
 	
 	public String getNick(){
 		return nick;

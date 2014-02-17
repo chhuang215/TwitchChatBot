@@ -1,7 +1,6 @@
 package com.chhuang.accounts;
 
 import java.awt.BorderLayout;
-
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -27,7 +26,10 @@ public class AccountManageUI extends ManageUI{
 	public AccountManageUI(AccountManager accManage) {
 		super("Accounts");
 		this.accountManager = accManage;
-		
+		initializeUI();
+	}
+	
+	private void initializeUI(){
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent arg0) {
 				accountManager.saveAccounts();
@@ -35,8 +37,8 @@ public class AccountManageUI extends ManageUI{
 		});
 		
 		initializeList();
-
-		lblPass = new JTextField(":");
+		
+		lblPass = new JTextField(" ");
 		lblPass.setFont(DEFAULT_FONT);
 		lblPass.setHorizontalAlignment(SwingUtilities.CENTER);
 		lblPass.setBorder(null);
@@ -57,12 +59,11 @@ public class AccountManageUI extends ManageUI{
 		});
 		
 		panelAccountInfo = new JPanel(new BorderLayout(5,5));
-		panelAccountInfo.add(scrollPane, BorderLayout.CENTER);
+		panelAccountInfo.add(scrollPaneMainLst, BorderLayout.CENTER);
 		panelAccountInfo.add(lblPass, BorderLayout.SOUTH);
 	
 		this.getContentPane().add(panelAccountInfo, BorderLayout.CENTER);
 		this.getContentPane().add(panelButtons, BorderLayout.SOUTH);
-		
 	}
 
 	protected void resetList(){
@@ -102,7 +103,7 @@ public class AccountManageUI extends ManageUI{
 			String nick = txtNick.getText();
 			String oauth = txtOauth.getText(); 
 			
-			if (nick != null && !nick.trim().equals("")){
+			if (!nick.trim().isEmpty()){
 				nick = nick.trim();
 				oauth = oauth.trim();
 				accountManager.addAccount(nick, oauth);

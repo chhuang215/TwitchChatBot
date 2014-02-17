@@ -1,6 +1,5 @@
 package com.chhuang.irc;
 import java.awt.BorderLayout;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -9,7 +8,6 @@ import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -25,6 +23,7 @@ import javax.swing.text.BadLocationException;
 import com.chhuang.accounts.*;
 import com.chhuang.channels.ChannelManager;
 import com.chhuang.display.ChatDisplay;
+import com.chhuang.util.AppUtilities;
 
 @SuppressWarnings("serial")
 public class MainChatBoxUI extends JFrame implements ActionListener{
@@ -38,9 +37,6 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	private MessageBoxUI msbUI;
 	private ChatDisplay chatDisplay;
 	
-	private JFrame jfrmMemory;
-	private JLabel lblMemory;
-	
 	private JPanel panelTextBox;
 	private JPanel panelMainPane;
 	private JTextField txtInput;
@@ -50,9 +46,11 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	
 	private JMenuBar menuBar;
 	private JMenu jmMenu;
+	private JMenu jmTools;
 	private JMenu jmCrappyBot;
 	private JMenuItem miLogin;
 	private JMenuItem miDisconnect;
+	private JMenuItem miChangeChannel;
 	private JMenuItem miVocabulary;
 	private JMenuItem miAccounts;
 	private JMenuItem miChannels;
@@ -102,12 +100,18 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			public void menuCanceled(MenuEvent arg0) {}
 		});
 		
+		jmTools = new JMenu("Tools");
+		
 		miLogin = new JMenuItem("Login");
 		miLogin.addActionListener(this);
 		
 		miDisconnect = new JMenuItem("Disconnect");
 		miDisconnect.addActionListener(this);
 		miDisconnect.setEnabled(false);
+		
+		miChangeChannel = new JMenuItem("Change channel");
+		miChangeChannel.addActionListener(this);
+		miChangeChannel.setEnabled(false);
 		
 		miAccounts = new JMenuItem("Accounts");
 		miAccounts.addActionListener(this);
@@ -126,15 +130,18 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		miMemory.addActionListener(this);
 		
 		jmMenu.add(miLogin);
+		jmMenu.add(miChangeChannel);
 		jmMenu.add(miDisconnect);
 		jmMenu.add(miChannels);
 		jmMenu.add(miAccounts);
-		jmMenu.add(miIncoming);
-		jmMenu.add(miMemory);
+		
+		jmTools.add(miIncoming);
+		jmTools.add(miMemory);
 		
 		jmCrappyBot.add(miVocabulary);
-
+		
 		menuBar.add(jmMenu);
+		menuBar.add(jmTools);
 		menuBar.add(jmCrappyBot);
 		
 		/*
@@ -157,7 +164,6 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		btnEnter = new JButton("Enter");
 		btnEnter.setActionCommand("send");
 		btnEnter.addActionListener(this);
-		
 		/*----------*/
 		
 		panelTextBox = new JPanel(new BorderLayout(4,2));
@@ -178,8 +184,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		setVisible(true);
 	}
 
-	public void login() {	
-
+	public void login() {
 		Login login = new Login(this, accountManager.getAccounts(), channelManager.getChannels());
 		if(login.isValid()){			
 			try{
@@ -208,27 +213,16 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 	public void checkConnected(){
 		if(client != null && client.isConnected()){
 			miLogin.setEnabled(false);
+			//TODO miChangeChannel.setEnabled(true);
 			miDisconnect.setEnabled(true);
 			txtInput.setEnabled(true);
 		} else {
 			miLogin.setEnabled(true);
+			//TODO miChangeChannel.setEnabled(false);
 			miDisconnect.setEnabled(false);
 			txtInput.setEnabled(false);
 			miVocabulary.setEnabled(false);
 		}
-	}
-	
-	public void showMemory(){
-		Runtime r = Runtime.getRuntime();
-		long total = r.totalMemory()/1024 ;
-		long max = r.maxMemory()/1024;
-		long free = r.freeMemory()/1024;
-		long used = (r.totalMemory() - r.freeMemory())/1024;		
-		
-		lblMemory.setText("<html>Max: " + max + " KB<br>" +
-					"Total: " + total + " KB<br>" +
-					"Free: " + free + " KB<br>" + 
-					"Used: " + used + " KB</html>");
 	}
 	
 	private class WindowListener extends WindowAdapter{
@@ -254,7 +248,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		if(actionCommand.equalsIgnoreCase("send")){
 			String input = txtInput.getText();
 			if(client != null){
-				client.write("PRIVMSG " + client.getChannel() + " :" +input);
+				client.write("PRIVMSG " + client.getChannel() + " :" + input);
 				//client.write(input);
 			}
 			txtInput.setText("");
@@ -281,7 +275,6 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-		
 		} 
 		
 		else if(actionCommand.equalsIgnoreCase("accounts")){
@@ -296,6 +289,9 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 			channelManager.showUI();
 		}
 		
+		else if(actionCommand.equalsIgnoreCase("change channel")){
+			//TODO show option pane of channel list
+		}
 		else if(actionCommand.equalsIgnoreCase("Server Messages")){
 			msbUI.setVisible(true);
 			try {
@@ -306,29 +302,7 @@ public class MainChatBoxUI extends JFrame implements ActionListener{
 		}
 		
 		else if(actionCommand.equalsIgnoreCase("memory")){
-		 	
-		 	if(jfrmMemory == null){
-		 		jfrmMemory = new JFrame("Memory");
-		 		jfrmMemory.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		 		jfrmMemory.setLayout(new BorderLayout());
-		 		jfrmMemory.setSize(200, 200);
-		 		jfrmMemory.setResizable(false);
-		 		lblMemory = new JLabel();
-		 		lblMemory.setHorizontalAlignment(JLabel.CENTER);
-		 		lblMemory.setFont(new Font("Arial", Font.PLAIN, 20));
-		 		JButton btn = new JButton("Show");
-		 		btn.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						showMemory();
-					}
-				});
-		 		jfrmMemory.getContentPane().add(lblMemory, BorderLayout.CENTER);
-		 		jfrmMemory.getContentPane().add(btn, BorderLayout.SOUTH);
-		 		
-		 	}
-		 	jfrmMemory.setVisible(true);
-		 	showMemory();
-		 	
+			AppUtilities.showMemory();
 		}
 	}	
 }

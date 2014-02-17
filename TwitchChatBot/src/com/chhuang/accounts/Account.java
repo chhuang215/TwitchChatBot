@@ -8,10 +8,11 @@ public class Account implements Serializable{
 	private String nick;
 	private String pass;
 	
-	public Account() {
+	public Account(){
 		nick = "";
 		pass = "";
 	}
+	
 	public Account(String nick, String pass){
 		this.nick = nick;
 		this.pass = pass;
@@ -32,6 +33,4 @@ public class Account implements Serializable{
 	public String getPass(){
 		return this.pass;
 	}
-
-	
 }

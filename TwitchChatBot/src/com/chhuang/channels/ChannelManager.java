@@ -8,13 +8,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 
-public class ChannelManager {
+public class ChannelManager implements Comparator<Channel>{
 
 	public static final String CHANNEL_FILE_NAME = "channels";
 	
-	private ArrayList<String> channels;
-	//private ArrayList<Channel> channels;
+	private ArrayList<Channel> channels;
 	private ChannelManageUI ui;
 	
 	public ChannelManager() {
@@ -24,13 +24,19 @@ public class ChannelManager {
 	public void showUI(){
 		if(ui == null)
 			ui = new ChannelManageUI(this);
+		
+		ui.checkOnline();
 		ui.setVisible(true);
 	}
 	
 	private void initializeChannels(){
 		if(!loadChannels()){
-			channels = new ArrayList<String>();
-			channels.add("#gemhuang2151992");
+			channels = new ArrayList<Channel>();
+			channels.add(new Channel("#gemhuang2151992"));
+		}
+		
+		for(Channel ch : channels){
+			ch.checkOnline();
 		}
 	}	
 	
@@ -45,8 +51,10 @@ public class ChannelManager {
 			channel = "#" + channel;
 			
 			if(!channels.contains(channel)){
-				channels.add(channel);
-				Collections.sort(channels);
+				Channel newCh = new Channel(channel);
+				newCh.checkOnline();
+				channels.add(newCh);
+				Collections.sort(channels, this);
 				return 0;
 			}
 			return 1;
@@ -57,7 +65,7 @@ public class ChannelManager {
 	public void removeChannel(int index){
 		if(index >= 0){
 			channels.remove(index);
-			Collections.sort(channels);
+			Collections.sort(channels, this);
 		}
 	}
 	
@@ -67,20 +75,21 @@ public class ChannelManager {
 			while(channel.startsWith("#")){
 				channel = channel.substring(1);
 			}
-			channels.set(index, "#" + channel);
+			channels.get(index).setChannel("#" + channel);
+			channels.get(index).checkOnline();
+			Collections.sort(channels, this);
 		}
 	}
 
-	public String getSelectedChannel(int index){
+	public Channel getSelectedChannel(int index){
 		return channels.get(index);
 	}
 	
-	public String getSelectedChannel(String ch){		
+	public Channel getSelectedChannel(String ch){	
 		return getSelectedChannel(channels.indexOf(ch));
 	}
-	
-	
-	public ArrayList<String> getChannels(){
+		
+	public ArrayList<Channel> getChannels(){
 		return channels;
 	}
 	
@@ -93,6 +102,7 @@ public class ChannelManager {
 			oos.close();
 			fos.close();
 			return true;
+			
 		} catch (IOException e){
 			System.out.println("IOException");
 			e.printStackTrace();
@@ -103,10 +113,11 @@ public class ChannelManager {
 	@SuppressWarnings("unchecked")
 	public boolean loadChannels(){
 		try {
+			
 			File file = new File(CHANNEL_FILE_NAME);
 			FileInputStream fis = new FileInputStream(file);
 			ObjectInputStream ois = new ObjectInputStream(fis);
-			channels = (ArrayList<String>) ois.readObject();
+			channels = (ArrayList<Channel>) ois.readObject();
 			
 			ois.close();
 			fis.close();
@@ -117,5 +128,10 @@ public class ChannelManager {
 		 	return false;
 		}
 
+	}
+
+	@Override
+	public int compare(Channel c1, Channel c2) {
+		return c1.getChannel().compareToIgnoreCase(c2.getChannel());
 	}
 }

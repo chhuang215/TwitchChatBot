@@ -60,7 +60,7 @@ public class Client {
 		socket = new Socket(hostname, port);
 				
 		writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")); 
-		reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"), 6000);
+		reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"), 7000);
 		
 		ml.setWriter(writer);
 		
@@ -87,9 +87,13 @@ public class Client {
 		connectToChannel(channel);
 	}
 	
-	public void connectToChannel(String channel){
-		this.channel = channel.toLowerCase();
+	public void connectToChannel(String ch){
+		channel = ch.toLowerCase();
 		write("JOIN " + channel);
+	}
+	
+	public void disconnectFromChannel(){
+		write("PART " + channel);
 	}
 	
 	public synchronized void write(String msg){		

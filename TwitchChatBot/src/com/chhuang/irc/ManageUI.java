@@ -22,17 +22,16 @@ public abstract class ManageUI extends JFrame{
 	public static final Font DEFAULT_FONT = new Font("Arial",Font.PLAIN,15);
 	protected DefaultListModel<String> dlm;
 	protected JList<String> lst;
-	protected JScrollPane scrollPane;
+	protected JScrollPane scrollPaneMainLst;
 	protected JButton btnAdd;
 	protected JButton btnRemove;
 	protected JButton btnEdit;
 	protected JPanel panelButtons;
 	
-	
 	public ManageUI(String title){
 		setTitle(title);
 		setSize(330,(int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()-50);
-		setLayout(new BorderLayout(5,5));
+		setLayout(new BorderLayout(0,5));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		initializeButtons();
@@ -62,7 +61,7 @@ public abstract class ManageUI extends JFrame{
 			}
 		});
 		
-		panelButtons = new JPanel(new GridLayout(1,3,2,2));
+		panelButtons = new JPanel(new GridLayout(1,0,2,2));
 		panelButtons.add(btnAdd);
 		panelButtons.add(btnRemove);
 		panelButtons.add(btnEdit);
@@ -85,7 +84,7 @@ public abstract class ManageUI extends JFrame{
 			}
 		});
 		
-		scrollPane = new JScrollPane(lst);
+		scrollPaneMainLst = new JScrollPane(lst);
 	}
 	
 	protected abstract void resetList();
