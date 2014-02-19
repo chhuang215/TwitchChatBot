@@ -1,6 +1,7 @@
 package com.chhuang.display;
 
 import java.awt.Color;
+import java.lang.reflect.Field;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultCaret;
@@ -14,7 +15,9 @@ import javax.swing.text.StyleContext;
  */
 public class ChatDisplay extends TextDisplay{
 	
-	private String myNick, currentConnectedChannel, lastChatMessage;
+	public static final String DEFAULT_USER_COLOR = "#000033";
+	
+	private String myNick,currentConnectedChannel, lastChatMessage;
 	
 	public ChatDisplay(){
 		super();
@@ -23,21 +26,20 @@ public class ChatDisplay extends TextDisplay{
 	}
 	
 	protected void initializeDisplay(){
-		display.setEditable(false);
-		display.setBackground(Color.LIGHT_GRAY);
+		jtpDisplay.setEditable(false);
+		jtpDisplay.setBackground(Color.LIGHT_GRAY);
 		
-		Style defaultStyle = doc.addStyle("default", StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE));
+		Style defaultStyle = docDisplay.addStyle("default", StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE));
 		StyleConstants.setFontSize(defaultStyle, 13);
 		StyleConstants.setForeground(defaultStyle, Color.DARK_GRAY);
 		StyleConstants.setFontFamily(defaultStyle, "Arial Unicode MS");
 
-		Style styleNames = doc.addStyle("names", defaultStyle);
-		StyleConstants.setForeground(styleNames, Color.BLUE);
+		docDisplay.addStyle("names", defaultStyle);
 		
-		Style messages = doc.addStyle("messages", defaultStyle);
+		Style messages = docDisplay.addStyle("messages", defaultStyle);
 		StyleConstants.setForeground(messages, Color.BLACK);
 		
-		DefaultCaret caret = (DefaultCaret)display.getCaret();
+		DefaultCaret caret = (DefaultCaret)jtpDisplay.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 	}
 	
@@ -53,7 +55,7 @@ public class ChatDisplay extends TextDisplay{
 			} else if(line.startsWith("PRIVMSG ")){
 				outputPrivmsg(this.myNick + "(me)", line.substring(line.indexOf(":") + 1));
 			} else{
-				doc.insertString(doc.getLength(), line, doc.getStyle("default"));
+				docDisplay.insertString(docDisplay.getLength(), line, docDisplay.getStyle("default"));
 			}
 		}catch(BadLocationException e){e.printStackTrace();}
 	}
@@ -77,14 +79,33 @@ public class ChatDisplay extends TextDisplay{
 	 */
 	private void outputPrivmsg(String nick, String msg){
 		try {
-			doc.insertString(doc.getLength(), nick + ": ", doc.getStyle("names"));
-			doc.insertString(doc.getLength(), msg, doc.getStyle("messages"));
+			docDisplay.insertString(docDisplay.getLength(), nick + ": ", docDisplay.getStyle("names"));
+			docDisplay.insertString(docDisplay.getLength(), msg, docDisplay.getStyle("messages"));
+			setNextNickColor(DEFAULT_USER_COLOR);
 		} catch (BadLocationException e) {
 			System.out.println("UNABLE TO INSERT STRING!");
 			e.printStackTrace();
 		}
 	}
 
+	public void setNextNickColor(String c){
+		Color color;
+		if (c.startsWith("#")){
+			color = Color.decode(c);
+		}else{
+			try {
+				Field f = Color.class.getField(c);
+				color = (Color)f.get(null);
+			} catch (Exception e){
+				System.out.println("EXCEPTION: " + e);
+				color = Color.decode(ChatDisplay.DEFAULT_USER_COLOR);
+			}
+		}
+		
+		Style user = docDisplay.getStyle("names");
+		StyleConstants.setForeground(user, color);
+	}
+	
 	/**
 	 * @param nick
 	 */

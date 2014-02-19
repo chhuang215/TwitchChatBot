@@ -18,13 +18,15 @@ import com.chhuang.irc.ManageUI;
 @SuppressWarnings("serial")
 public class AccountManageUI extends ManageUI{
 	
+	public static final String ACCOUNT_MANAGE_UI_TITLE = "Accounts";
+	
 	private AccountManager accountManager;
 
 	private JTextField lblPass;
 	private JPanel panelAccountInfo;
 	
 	public AccountManageUI(AccountManager accManage) {
-		super("Accounts");
+		super(ACCOUNT_MANAGE_UI_TITLE);
 		this.accountManager = accManage;
 		initializeUI();
 	}

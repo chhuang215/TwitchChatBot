@@ -18,26 +18,25 @@ public class ServerMessageDisplay extends TextDisplay {
 	
 	@Override
 	protected void initializeDisplay() {
-		display.setEditable(false);
-		display.setBackground(Color.DARK_GRAY);
+		jtpDisplay.setEditable(false);
+		jtpDisplay.setBackground(Color.DARK_GRAY);
 		
-		Style defaultStyle = doc.addStyle("default", StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE));
+		Style defaultStyle = docDisplay.addStyle("default", StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE));
 		StyleConstants.setFontSize(defaultStyle, 12);
 		StyleConstants.setForeground(defaultStyle, Color.WHITE);
 		StyleConstants.setFontFamily(defaultStyle, "Arial Unicode MS");
 		
-		DefaultCaret caret = (DefaultCaret)display.getCaret();
+		DefaultCaret caret = (DefaultCaret)jtpDisplay.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 	}
 
 	@Override
 	public void outputMessages(String line) throws BadLocationException {
-
-		if (display.getRootPane().getParent().isVisible()){
-			doc.insertString(doc.getLength(), line, doc.getStyle("default"));
+		if (jtpDisplay.getRootPane().getParent().isVisible()){
+			docDisplay.insertString(docDisplay.getLength(), line, docDisplay.getStyle("default"));
 		}
 		else{
-			messageQueue.addLast(now + line);
+			messageQueue.addLast(line);
 			if(messageQueue.size() > max_lines){
 				messageQueue.removeFirst();
 			}
@@ -45,8 +44,8 @@ public class ServerMessageDisplay extends TextDisplay {
 	}
 	
 	public void showQueueMessages() throws BadLocationException, InterruptedException{
-		while(messageQueue.size() >= 0){
-			doc.insertString(doc.getLength(), messageQueue.removeFirst() + "\n", doc.getStyle("default"));
+		while(!messageQueue.isEmpty()){
+			docDisplay.insertString(docDisplay.getLength(), messageQueue.removeFirst(), docDisplay.getStyle("default"));
 		}
 	}
 }

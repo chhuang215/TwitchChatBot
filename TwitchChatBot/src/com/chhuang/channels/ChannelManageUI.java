@@ -16,13 +16,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 
 import com.chhuang.irc.ManageUI;
 
 @SuppressWarnings("serial")
 public class ChannelManageUI extends ManageUI {
 	
-	public static final String CHANNEL_MANAGER_UI_TITLE = "Channels";
+	public static final String CHANNEL_MANAGE_UI_TITLE = "Channels";
+	
+	//private JTable jtChannels;
 	
 	private ChannelManager channelManager;
 	private JList<String> lstOnline;
@@ -32,10 +35,11 @@ public class ChannelManageUI extends ManageUI {
 	 * @param cm
 	 */
 	public ChannelManageUI(ChannelManager cm) {
-		super(CHANNEL_MANAGER_UI_TITLE);
+		super(CHANNEL_MANAGE_UI_TITLE);
 		this.channelManager = cm;
 		initializeUI();
 	}
+	
 	
 	private void initializeUI(){
 		setLocation(Toolkit.getDefaultToolkit().getScreenSize().width - getWidth(), 0);
@@ -59,13 +63,15 @@ public class ChannelManageUI extends ManageUI {
 		
 		JScrollPane jspOnlineLst = new JScrollPane(lstOnline);
 		jspOnlineLst.getViewport().setOpaque(false);
-		jspOnlineLst.setBorder(null);
+		jspOnlineLst.setBorder(new EmptyBorder(scrollPaneMainLst.getInsets()));
+
 		/*-----------------------------*/
 		
 		getContentPane().add(scrollPaneMainLst, BorderLayout.CENTER);
 		getContentPane().add(jspOnlineLst, BorderLayout.WEST);
 		
 	}
+	
 
 	@Override
 	protected void initializeButtons() {
@@ -176,6 +182,9 @@ public class ChannelManageUI extends ManageUI {
 		channelManager.checkOnlineAll();
 		displayOnlineStatus();
 		resetList();
-		setTitle(CHANNEL_MANAGER_UI_TITLE);
-	}	
+		setTitle(CHANNEL_MANAGE_UI_TITLE);
+	}
+
+
+	
 }

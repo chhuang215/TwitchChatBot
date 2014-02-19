@@ -66,7 +66,7 @@ public class Client {
 		
 		write("PASS " + pass);
 		write("NICK " + nick);
-		write("TWITCHCLIENT");
+		write("TWITCHCLIENT 2");
 		
 		incoming = new Thread(new Incoming());
 		incoming.start();
@@ -77,6 +77,7 @@ public class Client {
 	
 		incoming.join();
 
+		ml.kill();
 		connectedToServer = false;
 		connectedToChannel = false;
 		botMode = false;
@@ -128,7 +129,7 @@ public class Client {
 	
 	private class Incoming implements Runnable {
 
-		public void run() {
+		public synchronized void run() {
 			String line = null;
 			try {		
 				/*vCONTINUE READING FROM SOCKETv*/
@@ -145,7 +146,8 @@ public class Client {
 						if(line.indexOf("001") >= 0){
 							chatDisplay.output("Authenticate Success!");
 							connectedToServer = true;
-						} else if(line.indexOf("353") >= 0 ){
+							
+						} else if(line.indexOf("366") >= 0 ){
 							chatDisplay.output("Connected to " + channel);
 							connectedToChannel = true;
 						} else if(line.indexOf("Login unsuccessful") >= 0){
@@ -171,7 +173,7 @@ public class Client {
 			} catch (IOException e) {
 				Thread.currentThread().interrupt();
 				e.printStackTrace();
-				System.out.println("UNEXPECTED DISCONNECTION!");
+				chatDisplay.output("\n\nUNEXPECTED DISCONNECTION!");
 				connectedToServer = false;
 				connectedToChannel = false;
 			} 
