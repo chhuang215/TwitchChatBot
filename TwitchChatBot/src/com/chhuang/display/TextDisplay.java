@@ -14,8 +14,8 @@ public abstract class TextDisplay {
 	protected LinkedList<String> messageQueue;
 	protected int max_lines;
 	protected int currentNumOfLines;
-	protected JTextPane display;
-	protected StyledDocument doc;
+	protected JTextPane jtpDisplay;
+	protected StyledDocument docDisplay;
 	protected SimpleDateFormat sdf;
 	protected String now;
 	
@@ -29,13 +29,13 @@ public abstract class TextDisplay {
 	
 	public void maximumLineFormat() throws BadLocationException{
 		if(currentNumOfLines > max_lines){
-			doc.remove(0, display.getText().indexOf("\n"));
+			docDisplay.remove(0, jtpDisplay.getText().indexOf("\n"));
 		}
 	}
 	
 	public void reset(){
 		try {
-			doc.remove(0, doc.getLength());
+			docDisplay.remove(0, docDisplay.getLength());
 			currentNumOfLines = 0;
 			messageQueue.clear();
 		} catch (BadLocationException e) {
@@ -43,30 +43,31 @@ public abstract class TextDisplay {
 		};
 	}
 	
-	public void setDisplayPane(JTextPane jtp){
-		display = jtp;
-		doc = display.getStyledDocument();
-	}
-	
-	public JTextPane getDisplayPane(){
-		return display;
-	}
-	
 	public synchronized void output(String line){
 		try {
 			line = line.trim();
 			if(!line.isEmpty()){
 				maximumLineFormat();
+				
 				now = sdf.format(Calendar.getInstance().getTime());
-				doc.insertString(doc.getLength(), now, doc.getStyle("default"));
 				
+				outputMessages(now);
 				outputMessages(line);
+				outputMessages("\n");
 				
-				doc.insertString(doc.getLength(), "\n", doc.getStyle("default"));
 				currentNumOfLines++;
 			}
 		} catch (BadLocationException e) {e.printStackTrace();}
 	}	
+	
+	public void setDisplayPane(JTextPane jtp){
+		jtpDisplay = jtp;
+		docDisplay = jtpDisplay.getStyledDocument();
+	}
+	
+	public JTextPane getDisplayPane(){
+		return jtpDisplay;
+	}
 	
 	protected abstract void initializeDisplay();
 	
