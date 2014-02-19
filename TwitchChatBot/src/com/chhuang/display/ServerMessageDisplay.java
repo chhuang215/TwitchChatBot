@@ -35,9 +35,7 @@ public class ServerMessageDisplay extends TextDisplay {
 
 		if (display.getRootPane().getParent().isVisible()){
 			doc.insertString(doc.getLength(), line, doc.getStyle("default"));
-
 		}
-		
 		else{
 			messageQueue.addLast(now + line);
 			if(messageQueue.size() > max_lines){
@@ -47,8 +45,8 @@ public class ServerMessageDisplay extends TextDisplay {
 	}
 	
 	public void showQueueMessages() throws BadLocationException, InterruptedException{
-		while(!messageQueue.isEmpty()){
+		while(messageQueue.size() >= 0){
 			doc.insertString(doc.getLength(), messageQueue.removeFirst() + "\n", doc.getStyle("default"));
-		}	
+		}
 	}
 }

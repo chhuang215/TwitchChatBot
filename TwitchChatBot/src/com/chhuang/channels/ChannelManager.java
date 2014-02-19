@@ -24,7 +24,7 @@ public class ChannelManager implements Comparator<Channel>{
 	public void showUI(){
 		if(ui == null)
 			ui = new ChannelManageUI(this);
-		
+
 		ui.displayOnlineStatus();
 		ui.setVisible(true);
 	}
@@ -32,7 +32,6 @@ public class ChannelManager implements Comparator<Channel>{
 	private void initializeChannels(){
 		if(!loadChannels()){
 			channels = new ArrayList<Channel>();
-			channels.add(new Channel("#gemhuang2151992"));
 		}
 		
 		checkOnlineAll();
@@ -54,18 +53,19 @@ public class ChannelManager implements Comparator<Channel>{
 	}
 	
 	public void checkOnlineAll(){
-		if(channels.size() < 0) return;
-		
+		if(channels.isEmpty()) return;
 		try {
 			Thread threads[] = new Thread[channels.size()];
 			for(int i = 0; i < threads.length; i++){
 				threads[i] = new Thread(new ChannelOnlineThread(channels.get(i)));
+				threads[i].start();
 			}
-		
+			
 			for(Thread t : threads){
 				if(t.isAlive())
 					t.join();
 			}
+			
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -81,14 +81,18 @@ public class ChannelManager implements Comparator<Channel>{
 			
 			channel = "#" + channel;
 			
-			if(!channels.contains(channel)){
-				Channel newCh = new Channel(channel);
-				checkOnline(newCh);
-				channels.add(newCh);
-				Collections.sort(channels, this);
-				return 0;
+			for(Channel ch : channels){
+				if(ch.getChannel().equalsIgnoreCase(channel)){
+					return 1;
+				}
 			}
-			return 1;
+
+			Channel newCh = new Channel(channel);
+			checkOnline(newCh);
+			channels.add(newCh);
+			Collections.sort(channels, this);
+			return 0;
+
 		}
 		return -1;
 	}
@@ -115,15 +119,15 @@ public class ChannelManager implements Comparator<Channel>{
 	public Channel getSelectedChannel(int index){
 		return channels.get(index);
 	}
-	
+
 	public Channel getSelectedChannel(String ch){	
 		return getSelectedChannel(channels.indexOf(ch));
 	}
-		
+
 	public ArrayList<Channel> getChannels(){
 		return channels;
 	}
-	
+
 	public boolean saveChannels(){
 		try{
 			File f = new File(CHANNEL_FILE_NAME);

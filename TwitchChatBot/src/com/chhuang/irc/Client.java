@@ -66,6 +66,7 @@ public class Client {
 		
 		write("PASS " + pass);
 		write("NICK " + nick);
+		write("TWITCHCLIENT");
 		
 		incoming = new Thread(new Incoming());
 		incoming.start();

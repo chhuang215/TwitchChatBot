@@ -43,9 +43,7 @@ public class MessageListener {
 	}
 	
 	public void write(String msg) throws IOException{
-		
 		if(!isEmpty(msg)){
-			
 			writer.write(msg + "\r\n");
 			writer.flush();
 			chatDisplay.output(msg);

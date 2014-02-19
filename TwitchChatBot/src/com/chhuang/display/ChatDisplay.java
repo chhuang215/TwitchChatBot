@@ -47,18 +47,14 @@ public class ChatDisplay extends TextDisplay{
 	 */
 	public void outputMessages(String line){
 		try{
-	
 			lastChatMessage = "";
-			
 			if(line.startsWith(":") && line.contains("PRIVMSG ") && !line.contains("jtv")){
 				outputPrivmsg(line);
-				
-			}else if(line.startsWith("PRIVMSG ")){
+			} else if(line.startsWith("PRIVMSG ")){
 				outputPrivmsg(this.myNick + "(me)", line.substring(line.indexOf(":") + 1));
-			}else{
+			} else{
 				doc.insertString(doc.getLength(), line, doc.getStyle("default"));
-			}				
-
+			}
 		}catch(BadLocationException e){e.printStackTrace();}
 	}
 	
@@ -90,7 +86,6 @@ public class ChatDisplay extends TextDisplay{
 	}
 
 	/**
-	 * 
 	 * @param nick
 	 */
 	public void setUserNick(String nick){
@@ -98,15 +93,13 @@ public class ChatDisplay extends TextDisplay{
 	}
 	
 	/**
-	 * 
 	 * @param channel
 	 */
 	public void setCurrentChannel(String channel){
 		currentConnectedChannel = channel;
 	}
 	
-	/**
-	 * 
+	/** 
 	 * @return String lastChatMessage
 	 */
 	public String getLastChatMessage(){

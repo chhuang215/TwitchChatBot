@@ -54,6 +54,7 @@ public abstract class TextDisplay {
 	
 	public synchronized void output(String line){
 		try {
+			line = line.trim();
 			if(!line.isEmpty()){
 				maximumLineFormat();
 				now = sdf.format(Calendar.getInstance().getTime());
@@ -64,7 +65,6 @@ public abstract class TextDisplay {
 				doc.insertString(doc.getLength(), "\n", doc.getStyle("default"));
 				currentNumOfLines++;
 			}
-		
 		} catch (BadLocationException e) {e.printStackTrace();}
 	}	
 	

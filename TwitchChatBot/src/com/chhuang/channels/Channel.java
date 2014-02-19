@@ -24,7 +24,7 @@ public class Channel implements Serializable{
 		return online;
 	}
 	
-	public void setOnline(boolean _online){
-		online = _online;
+	public void setOnline(boolean on){
+		online = on;
 	}
 }

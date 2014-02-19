@@ -177,7 +177,5 @@ public class ChannelManageUI extends ManageUI {
 		displayOnlineStatus();
 		resetList();
 		setTitle(CHANNEL_MANAGER_UI_TITLE);
-	}
-
-	
+	}	
 }
