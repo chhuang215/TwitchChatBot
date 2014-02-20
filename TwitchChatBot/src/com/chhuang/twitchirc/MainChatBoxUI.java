@@ -1,4 +1,4 @@
-package com.chhuang.irc;
+package com.chhuang.twitchirc;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

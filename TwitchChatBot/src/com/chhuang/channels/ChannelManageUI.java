@@ -19,7 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import com.chhuang.irc.ManageUI;
+import com.chhuang.twitchirc.ManageUI;
 
 @SuppressWarnings("serial")
 public class ChannelManageUI extends ManageUI {

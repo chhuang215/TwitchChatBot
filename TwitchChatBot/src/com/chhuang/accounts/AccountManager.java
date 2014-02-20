@@ -10,7 +10,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import com.chhuang.irc.Client;
+import com.chhuang.twitchirc.Client;
 
 public class AccountManager{
 	
