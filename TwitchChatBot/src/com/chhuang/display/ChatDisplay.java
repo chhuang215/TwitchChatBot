@@ -88,6 +88,7 @@ public class ChatDisplay extends TextDisplay{
 		}
 	}
 
+	
 	public void setNextNickColor(String c){
 		Color color;
 		if (c.startsWith("#")){
