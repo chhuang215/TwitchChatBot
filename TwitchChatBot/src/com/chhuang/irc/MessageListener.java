@@ -72,7 +72,6 @@ public class MessageListener {
 							messageDisplay.output(msg);
 						}
 						else if(msg.contains(":USERCOLOR")){
-							System.out.println(msg);
 							chatDisplay.setNextNickColor((msg.split(" "))[5]);
 						}
 						else if(msg.contains(":SPECIALUSER")){
