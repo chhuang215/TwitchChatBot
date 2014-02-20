@@ -1,4 +1,4 @@
-package com.chhuang.irc;
+package com.chhuang.twitchirc;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

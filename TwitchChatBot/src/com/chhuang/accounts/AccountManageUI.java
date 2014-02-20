@@ -13,7 +13,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import com.chhuang.irc.ManageUI;
+import com.chhuang.twitchirc.ManageUI;
 
 @SuppressWarnings("serial")
 public class AccountManageUI extends ManageUI{

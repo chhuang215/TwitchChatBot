@@ -1,6 +1,6 @@
 import javax.swing.SwingUtilities;
 
-import com.chhuang.irc.MainChatBoxUI;
+import com.chhuang.twitchirc.MainChatBoxUI;
 
 
 public class Driver {
