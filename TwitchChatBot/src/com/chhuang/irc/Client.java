@@ -78,6 +78,7 @@ public class Client {
 		incoming.join();
 
 		ml.kill();
+		
 		connectedToServer = false;
 		connectedToChannel = false;
 		botMode = false;
