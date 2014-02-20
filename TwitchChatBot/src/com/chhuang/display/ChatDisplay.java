@@ -30,11 +30,12 @@ public class ChatDisplay extends TextDisplay{
 		jtpDisplay.setBackground(Color.LIGHT_GRAY);
 		
 		Style defaultStyle = docDisplay.addStyle("default", StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE));
-		StyleConstants.setFontSize(defaultStyle, 13);
+		StyleConstants.setFontSize(defaultStyle, 14);
 		StyleConstants.setForeground(defaultStyle, Color.DARK_GRAY);
 		StyleConstants.setFontFamily(defaultStyle, "Arial Unicode MS");
 
-		docDisplay.addStyle("names", defaultStyle);
+		Style names = docDisplay.addStyle("names", defaultStyle);
+		StyleConstants.setBold(names, true);
 		
 		Style messages = docDisplay.addStyle("messages", defaultStyle);
 		StyleConstants.setForeground(messages, Color.BLACK);

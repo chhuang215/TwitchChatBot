@@ -2,7 +2,7 @@ package com.chhuang.accounts;
 
 import java.io.Serializable;
 
-public class Account implements Serializable{
+public class Account implements Serializable, Comparable<Account>{
 
 	private static final long serialVersionUID = 8490559367632667836L;
 	private String nick;
@@ -32,5 +32,11 @@ public class Account implements Serializable{
 	
 	public String getPass(){
 		return this.pass;
+	}
+
+	@Override
+	public int compareTo(Account o) {
+		
+		return this.getNick().compareTo(o.getNick());
 	}
 }

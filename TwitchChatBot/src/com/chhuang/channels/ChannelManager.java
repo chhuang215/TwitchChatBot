@@ -8,9 +8,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
-public class ChannelManager implements Comparator<Channel>{
+public class ChannelManager{
 
 	public static final String CHANNEL_FILE_NAME = "channels";
 	
@@ -90,7 +89,7 @@ public class ChannelManager implements Comparator<Channel>{
 			Channel newCh = new Channel(channel);
 			checkOnline(newCh);
 			channels.add(newCh);
-			Collections.sort(channels, this);
+			Collections.sort(channels);
 			return 0;
 
 		}
@@ -100,7 +99,7 @@ public class ChannelManager implements Comparator<Channel>{
 	public void removeChannel(int index){
 		if(index >= 0){
 			channels.remove(index);
-			Collections.sort(channels, this);
+			Collections.sort(channels);
 		}
 	}
 	
@@ -112,7 +111,7 @@ public class ChannelManager implements Comparator<Channel>{
 			}
 			channels.get(index).setChannel("#" + channel);
 			checkOnline(index);
-			Collections.sort(channels, this);
+			Collections.sort(channels);
 		}
 	}
 
@@ -159,14 +158,9 @@ public class ChannelManager implements Comparator<Channel>{
 			return true;
 			
 		} catch (IOException | ClassNotFoundException e){
-			System.out.println("NO FILE FOUND, NEW FILE [channels] CREATED!");
+			System.out.println("NO FILE " + CHANNEL_FILE_NAME + " FOUND.");
 		 	return false;
 		}
 
-	}
-
-	@Override
-	public int compare(Channel c1, Channel c2) {
-		return c1.getChannel().compareToIgnoreCase(c2.getChannel());
 	}
 }

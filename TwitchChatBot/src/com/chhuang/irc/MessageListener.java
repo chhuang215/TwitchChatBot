@@ -64,33 +64,37 @@ public class MessageListener {
 		@Override
 		public synchronized void run() {
 			String msg;
-			while(!Thread.currentThread().isInterrupted()){
-				while(!messageQueue.isEmpty()){
-					try{
-						msg = messageQueue.removeFirst();
-						if(msg.contains(" JOIN ") || msg.contains((" PART "))){
-							messageDisplay.output(msg);
+			try {
+				while(!Thread.currentThread().isInterrupted()){
+					while(!messageQueue.isEmpty()){
+						try{
+							msg = messageQueue.removeFirst();
+							if(msg.contains(" JOIN ") || msg.contains((" PART "))){
+								messageDisplay.output(msg);
+							}
+							else if(msg.contains(":USERCOLOR")){
+								chatDisplay.setNextNickColor((msg.split(" "))[5]);
+							}
+							else if(msg.contains(":SPECIALUSER")){
+								
+							}
+							else if(msg.contains(":EMOTESET")){
+								
+							}
+							else{
+								chatDisplay.output(msg);
+							}
+						}catch(NoSuchElementException e){
+							chatDisplay.output("NOSUCHELEMTNEXCEPTION HAHA\n");
+							continue;
 						}
-						else if(msg.contains(":USERCOLOR")){
-							chatDisplay.setNextNickColor((msg.split(" "))[5]);
-						}
-						else if(msg.contains(":SPECIALUSER")){
-							
-						}
-						else if(msg.contains(":EMOTESET")){
-							
-						}
-						else{
-							chatDisplay.output(msg);
-						}
-					}catch(NoSuchElementException e){
-						chatDisplay.output("NOSUCHELEMTNEXCEPTION HAHA\n");
-						continue;
 					}
+					
+					Thread.sleep(11);
 				}
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {return;}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
 			}
 		}
 	}

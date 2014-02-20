@@ -2,7 +2,7 @@ package com.chhuang.channels;
 
 import java.io.Serializable;
 
-public class Channel implements Serializable{
+public class Channel implements Serializable, Comparable<Channel>{
 
 	private static final long serialVersionUID = -7265713389141238271L;
 	private String channel;
@@ -26,5 +26,11 @@ public class Channel implements Serializable{
 	
 	public void setOnline(boolean on){
 		online = on;
+	}
+
+	@Override
+	public int compareTo(Channel o) {
+		
+		return this.getChannel().compareTo(o.getChannel());
 	}
 }

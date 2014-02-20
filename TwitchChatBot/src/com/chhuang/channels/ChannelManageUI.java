@@ -9,6 +9,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -28,7 +29,6 @@ public class ChannelManageUI extends ManageUI {
 	//private JTable jtChannels;
 	
 	private ChannelManager channelManager;
-	private JList<String> lstOnline;
 	private DefaultListModel<String> dlmOnline;
 
 	/**
@@ -53,12 +53,22 @@ public class ChannelManageUI extends ManageUI {
 		initializeMainList();
 		
 		/*----Online status display----*/
-		lstOnline = new JList<String>(new DefaultListModel<String>());
+		JList<String> lstOnline = new JList<String>(new DefaultListModel<String>());
 		lstOnline.setOpaque(false);
-		((DefaultListCellRenderer)lstOnline.getCellRenderer()).setHorizontalAlignment(JLabel.RIGHT);;
+		
 		lstOnline.setPrototypeCellValue("LOADING");
+		lstOnline.setSelectionModel(new DefaultListSelectionModel(){
+			@Override
+			public void setSelectionInterval(int index0, int index1) {
+				super.setSelectionInterval(-1, -1);
+			}
+			
+		});
+		
+		((DefaultListCellRenderer)lstOnline.getCellRenderer()).setHorizontalAlignment(JLabel.RIGHT);;
 		dlmOnline = (DefaultListModel<String>) lstOnline.getModel();
 		
+
 		((JLabel)lstOnline.getCellRenderer()).setOpaque(false);;
 		
 		JScrollPane jspOnlineLst = new JScrollPane(lstOnline);
@@ -92,7 +102,7 @@ public class ChannelManageUI extends ManageUI {
 			if(ch.isOnline()){
 				dlmOnline.addElement("ONLINE");
 			} else {
-				dlmOnline.addElement("      ");
+				dlmOnline.addElement(" ");
 			}
 		}
 	}

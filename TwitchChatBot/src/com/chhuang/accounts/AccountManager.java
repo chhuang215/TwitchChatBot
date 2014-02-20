@@ -9,11 +9,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 import com.chhuang.irc.Client;
 
-public class AccountManager implements Comparator<Account>{
+public class AccountManager{
 	
 	public static final String ACCOUNT_FILE_NAME = "accounts";
 	
@@ -29,7 +28,7 @@ public class AccountManager implements Comparator<Account>{
 			accounts = new ArrayList<Account>();
 			accounts.add(new Account(Client.CRAPPY_BOT, "oauth"));
 		}
-		Collections.sort(accounts, this);
+		Collections.sort(accounts);
 	}
 	
 	public void showUI(){
@@ -42,7 +41,7 @@ public class AccountManager implements Comparator<Account>{
 	public void removeAccount(int index) {
 		if(index >= 0){
 			accounts.remove(index);
-			Collections.sort(accounts, this);
+			Collections.sort(accounts);
 		}
 	}
 	
@@ -51,7 +50,7 @@ public class AccountManager implements Comparator<Account>{
 			Account acc = accounts.get(index);
 			acc.setNick(nick);
 			acc.setPass(oauth);
-			Collections.sort(accounts, this);
+			Collections.sort(accounts);
 		}
 	}
 
@@ -61,7 +60,7 @@ public class AccountManager implements Comparator<Account>{
 			oauth = oauth.trim();
 			Account newAccount = new Account(nick,oauth);
 			accounts.add(newAccount);
-			Collections.sort(accounts, this);
+			Collections.sort(accounts);
 		}
 	}
 	
@@ -106,10 +105,6 @@ public class AccountManager implements Comparator<Account>{
 			e.printStackTrace();
 			return false;
 		}
-	}
-	
-	public int compare(Account acc1, Account acc2) {
-		return acc1.getNick().compareToIgnoreCase(acc2.getNick());
 	}
 	
 	public Account getSelectedAccount(int index){
