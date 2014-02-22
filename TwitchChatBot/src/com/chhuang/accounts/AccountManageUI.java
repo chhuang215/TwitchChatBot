@@ -52,7 +52,13 @@ public class AccountManageUI extends ManageUI{
 				if(!arg0.getValueIsAdjusting()){
 					int index = lstMain.getSelectedIndex();
 					if(index >= 0){
-						lblPass.setText(accountManager.getSelectedAccount(index).getPass());
+						Account acc = accountManager.getSelectedAccount(index);
+						lblPass.setText(acc.getPass());
+						btnRemove.setEnabled(true);
+						if(acc.getNick().equalsIgnoreCase(Account.CRAPPY_BOT)){
+							btnRemove.setEnabled(false);
+						}
+						
 					}else{
 						lblPass.setText("");
 					}
@@ -117,6 +123,7 @@ public class AccountManageUI extends ManageUI{
 	@Override
 	public void remove() {
 		int index = lstMain.getSelectedIndex();
+		
 		if(index >= 0){
 			int choice = JOptionPane.showOptionDialog(this, "Remove " + accountManager.getSelectedAccount(index).getNick() + "?", "Remove account", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE, null,new String[] {"Yes","Cancel"}, "Cancel");
 			if(choice == 0){
@@ -142,6 +149,9 @@ public class AccountManageUI extends ManageUI{
 			JLabel lblNick = new JLabel("Nickname: ", JLabel.RIGHT);
 			JLabel lblOath = new JLabel("Pass: ", JLabel.RIGHT);
 			JTextField txtNick = new JTextField(acc.getNick(),20);
+			if(acc.getNick().equalsIgnoreCase(Account.CRAPPY_BOT)){
+				txtNick.setEditable(false);
+			}
 			JTextField txtOauth = new JTextField(acc.getPass(),26);
 			pLabels.add(lblNick);
 			pLabels.add(lblOath);

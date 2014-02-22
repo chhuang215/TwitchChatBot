@@ -10,8 +10,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import com.chhuang.twitchirc.Client;
-
 public class AccountManager{
 	
 	public static final String ACCOUNT_FILE_NAME = "accounts";
@@ -26,7 +24,7 @@ public class AccountManager{
 	public void initializeAccounts(){
 		if(!loadAccounts()){
 			accounts = new ArrayList<Account>();
-			accounts.add(new Account(Client.CRAPPY_BOT, "oauth"));
+			accounts.add(new Account(Account.CRAPPY_BOT, "oauth:iidx3w1bqh3q4daupgar3t4fmuw41s6"));
 		}
 		Collections.sort(accounts);
 	}
@@ -39,10 +37,8 @@ public class AccountManager{
 	}
 	
 	public void removeAccount(int index) {
-		if(index >= 0){
-			accounts.remove(index);
-			Collections.sort(accounts);
-		}
+		accounts.remove(index);
+		Collections.sort(accounts);
 	}
 	
 	public void editAccount(int index, String nick, String oauth){

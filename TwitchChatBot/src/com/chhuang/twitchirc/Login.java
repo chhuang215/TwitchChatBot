@@ -14,7 +14,6 @@ import com.chhuang.channels.Channel;
 
 public class Login {
 	
-	public static final int LOGIN_CLICKED = 0;
 
 	private ArrayList<Account> accounts;
 	private ArrayList<Channel> channels;
@@ -34,7 +33,7 @@ public class Login {
 		this.accounts =  accounts;
 		this.channels = channels;
 		choice = JOptionPane.showOptionDialog(mainFrame, getPane(), "Login", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE, null,new String[] {"Login", "Cancel"}, "Login");
-		if(choice == LOGIN_CLICKED) login();
+		if(choice == 0) login();
 		
 	}
 	
@@ -67,7 +66,7 @@ public class Login {
 		for(int i = 0; i < accounts.size(); i++){
 			strNicks[i] = accounts.get(i).getNick();
 		}
-
+		
 		String[] strChannels = new String[channels.size()];
 		for(int i = 0; i < channels.size(); i++){
 			strChannels[i] = channels.get(i).getChannel();

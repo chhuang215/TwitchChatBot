@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import com.chhuang.accounts.Account;
 import com.chhuang.bot.Bot;
 import com.chhuang.display.ChatDisplay;
 import com.chhuang.display.ServerMessageDisplay;
@@ -15,7 +16,6 @@ import com.chhuang.display.ServerMessageDisplay;
 public class Client {
 	public static final int DEFAULT_PORT = 6667;
 	public static final String DEFAULT_SERVER = "irc.twitch.tv";
-	public static final String CRAPPY_BOT = "CrappyBot";
 	public static final String[] TWITCH_IRC_COMMANDS = 
 		{"CPRIVMSG", "JOIN", "MODE", "NICK", "PART", "PASS", "PING", "PONG", "PRIVMSG", "QUIT", "USER", "TWITCHCLIENT", "JTVCLIENT"};
 	
@@ -49,7 +49,7 @@ public class Client {
 		messageDisplay.reset();		
 		
 		ml = new MessageListener(chatDisplay, messageDisplay);
-		if(nick.equalsIgnoreCase(CRAPPY_BOT)){
+		if(nick.equalsIgnoreCase(Account.CRAPPY_BOT)){
 			bot = new Bot();
 			bot.setChannel(channel);
 			botMode = true;	

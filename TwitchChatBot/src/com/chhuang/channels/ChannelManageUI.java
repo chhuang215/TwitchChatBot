@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -29,6 +30,7 @@ public class ChannelManageUI extends ManageUI {
 	//private JTable jtChannels;
 	
 	private ChannelManager channelManager;
+	private ArrayList<Channel> channels;
 	private DefaultListModel<String> dlmOnline;
 
 	/**
@@ -37,6 +39,7 @@ public class ChannelManageUI extends ManageUI {
 	public ChannelManageUI(ChannelManager cm) {
 		super(CHANNEL_MANAGE_UI_TITLE);
 		this.channelManager = cm;
+		channels = channelManager.getChannels();
 		initializeUI();
 	}
 	
@@ -64,7 +67,7 @@ public class ChannelManageUI extends ManageUI {
 			}
 			
 		});
-		
+
 		((DefaultListCellRenderer)lstOnline.getCellRenderer()).setHorizontalAlignment(JLabel.RIGHT);;
 		dlmOnline = (DefaultListModel<String>) lstOnline.getModel();
 		
@@ -98,7 +101,7 @@ public class ChannelManageUI extends ManageUI {
 	
 	public void displayOnlineStatus() {
 		dlmOnline.clear();
-		for(Channel ch : channelManager.getChannels()){
+		for(Channel ch : channels){
 			if(ch.isOnline()){
 				dlmOnline.addElement("ONLINE");
 			} else {
@@ -110,8 +113,8 @@ public class ChannelManageUI extends ManageUI {
 	@Override
 	protected void resetList() {
 		dlmMainList.clear();
-		if(!channelManager.getChannels().isEmpty()){
-			for (Channel channel : channelManager.getChannels()){
+		if(!channels.isEmpty()){
+			for (Channel channel : channels){
 				dlmMainList.addElement(channel.getChannel());
 			}
 			lstMain.clearSelection();
@@ -126,6 +129,7 @@ public class ChannelManageUI extends ManageUI {
 		
 		panel.add(lblCh);
 		panel.add(txtCh);
+		
 		
 		int choice = JOptionPane.showOptionDialog(this, panel, "Add Channel", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"Add", "Cancel"}, "Add");
 		
@@ -162,7 +166,7 @@ public class ChannelManageUI extends ManageUI {
 	public void edit() {
 		int index = -1;
 		if((index = lstMain.getSelectedIndex()) >= 0){
-			String currentSelectedChannel = lstMain.getSelectedValue();
+			String currentSelectedChannel = channels.get(lstMain.getSelectedIndex()).getChannel();
 			while(currentSelectedChannel.startsWith("#")){
 				currentSelectedChannel = currentSelectedChannel.substring(1);
 			}

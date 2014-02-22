@@ -1,5 +1,6 @@
 package com.chhuang.channels;
 
+import java.awt.Frame;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,6 +27,7 @@ public class ChannelManager{
 
 		ui.displayOnlineStatus();
 		ui.setVisible(true);
+		ui.setState(Frame.NORMAL);
 	}
 	
 	private void initializeChannels(){

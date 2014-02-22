@@ -27,10 +27,14 @@ public class Channel implements Serializable, Comparable<Channel>{
 	public void setOnline(boolean on){
 		online = on;
 	}
-
+	
 	@Override
 	public int compareTo(Channel o) {
-		
-		return this.getChannel().compareTo(o.getChannel());
+		return channel.compareTo(o.getChannel());
+	}
+
+	@Override
+	public String toString() {
+		return channel;
 	}
 }

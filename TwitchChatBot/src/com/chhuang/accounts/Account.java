@@ -7,6 +7,7 @@ public class Account implements Serializable, Comparable<Account>{
 	private static final long serialVersionUID = 8490559367632667836L;
 	private String nick;
 	private String pass;
+	public static final String CRAPPY_BOT = "CrappyBot";
 	
 	public Account(){
 		nick = "";
